@@ -9,14 +9,14 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 @Entity
-public class PeerLinkSessionStore {
+public class PeerLinkSession {
 
     @NonNull @PrimaryKey
     private String address;
     private int deviceId;
     private byte[] serializedRecord;
 
-    public PeerLinkSessionStore(String address, int deviceId, byte[] serializedRecord) {
+    public PeerLinkSession(String address, int deviceId, byte[] serializedRecord) {
         this.address = address;
         this.deviceId = deviceId;
         this.serializedRecord = serializedRecord;

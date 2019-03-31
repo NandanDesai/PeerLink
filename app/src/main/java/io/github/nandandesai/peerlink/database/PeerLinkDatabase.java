@@ -9,11 +9,16 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
 
+
 import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.Contact;
+import io.github.nandandesai.peerlink.models.PeerLinkIdentityKey;
+import io.github.nandandesai.peerlink.models.PeerLinkPreKey;
+import io.github.nandandesai.peerlink.models.PeerLinkSession;
+import io.github.nandandesai.peerlink.models.PeerLinkSignedPreKey;
 
-@Database(entities = {ChatMessage.class, ChatSession.class, Contact.class},version = 1)
+@Database(entities = {ChatMessage.class, ChatSession.class, Contact.class, PeerLinkIdentityKey.class, PeerLinkPreKey.class, PeerLinkSession.class, PeerLinkSignedPreKey.class},version = 1)
 public abstract class PeerLinkDatabase extends RoomDatabase {
     private static final String TAG = "PeerLinkDatabase";
     private static PeerLinkDatabase instance;
@@ -21,6 +26,10 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
     public abstract ChatMessageDao chatMessageDao();
     public abstract ChatSessionDao chatDao();
     public abstract ContactDao contactDao();
+    public abstract IdentityKeyDao identityKeyStoreDao();
+    public abstract PreKeyDao preKeyStoreDao();
+    public abstract SessionDao sessionStoreDao();
+    public abstract SignedPreKeyDao signedPreKeyStoreDao();
 
     public static synchronized PeerLinkDatabase getInstance(Context context){
 

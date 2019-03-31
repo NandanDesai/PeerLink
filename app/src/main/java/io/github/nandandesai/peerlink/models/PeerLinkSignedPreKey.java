@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 @Entity
-public class PeerLinkSignedPreKeyStore {
+public class PeerLinkSignedPreKey {
 
     @NonNull @PrimaryKey
     private int signedPreKeyId;
@@ -17,7 +17,7 @@ public class PeerLinkSignedPreKeyStore {
     private String signature;
     private long timestamp;
 
-    public PeerLinkSignedPreKeyStore(int signedPreKeyId, String publicKey, String privateKey, String signature, long timestamp) {
+    public PeerLinkSignedPreKey(int signedPreKeyId, String publicKey, String privateKey, String signature, long timestamp) {
         this.signedPreKeyId = signedPreKeyId;
         this.publicKey = publicKey;
         this.privateKey = privateKey;

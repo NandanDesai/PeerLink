@@ -27,7 +27,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    //for message encryption
+
+    implementation project(':peerlinkcomm')
+
     implementation 'org.whispersystems:signal-protocol-android:2.7.0'
 
     //recycler view

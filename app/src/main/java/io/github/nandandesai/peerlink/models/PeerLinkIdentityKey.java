@@ -7,13 +7,13 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 @Entity
-public class PeerLinkIdentityKeyStore {
+public class PeerLinkIdentityKey {
 
     @NonNull @PrimaryKey
     private String address;
     private String identityKey;
 
-    public PeerLinkIdentityKeyStore(String address, String identityKey) {
+    public PeerLinkIdentityKey(String address, String identityKey) {
         this.address = address;
         this.identityKey = identityKey;
     }

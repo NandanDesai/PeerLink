@@ -1,4 +1,5 @@
-package io.github.nandandesai.peerlink.core.utils;
+package io.github.nandandesai.peerlinkcomm.utils;
+
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
@@ -2094,4 +2095,5 @@ public class Base64
 
 
 } // end class Base64
+
 
