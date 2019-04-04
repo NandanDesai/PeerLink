@@ -1,7 +1,10 @@
 package io.github.nandandesai.peerlink;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -13,20 +16,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.github.nandandesai.peerlink.adapters.ChatListAdapter;
+import io.github.nandandesai.peerlink.models.ChatMessage;
+import io.github.nandandesai.peerlink.models.ChatSession;
+import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
+import io.github.nandandesai.peerlink.viewmodels.ChatListViewModel;
+import io.github.nandandesai.peerlink.viewmodels.ContactListViewModel;
 
 
 public class ChatListFragment extends Fragment {
 
-
-    private ArrayList<String> chatTitles=new ArrayList<>();
-    private ArrayList<String> profilePics=new ArrayList<>();
-    private ArrayList<String> recentChatMsgs=new ArrayList<>();
-    private ArrayList<Integer> noOfUnreadMsgs=new ArrayList<>();
-
     private ChatListAdapter chatListAdapter;
     private RecyclerView recyclerView;
+    private List<ChatSession> chatSessions=new ArrayList<>();
+
+    private ChatListViewModel chatListViewModel;
 
     public ChatListFragment() {
 
@@ -46,17 +52,35 @@ public class ChatListFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-
+                TESTupdateChatItem();
             }
         });
 
         initRecyclerView(view);
-
-        init();
+        chatListViewModel=ViewModelProviders.of(this).get(ChatListViewModel.class);
+        chatListViewModel.getChatSessions().observe(this, new Observer<List<ChatSession>>() {
+            @Override
+            public void onChanged(@Nullable List<ChatSession> chatSessions) {
+                chatListAdapter.setChatSessions(chatSessions);
+            }
+        });
         return view;
     }
 
+    private void TESTupdateChatItem(){
+        String messageFrom="abcd123";
+        String messageTo="1";
+        String messageStatus= ChatMessage.STATUS.WAITING;
+        long messageTime=System.currentTimeMillis();
+        String messageType=ChatMessage.TYPE.TEXT;
+        String chatId="abcd123";
+        String messageContent="Hi this is abcd123. How are you?";
+        ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,chatId);
+        chatListViewModel.getTESTchatMessageRepository().insert(chatMessage);
+        chatListViewModel.update(chatId, System.currentTimeMillis(), messageContent);
+    }
 
+/*
     private void addNewChatItem(){
         chatTitles.add(0,"Alice");
         profilePics.add(0,"https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
@@ -66,11 +90,11 @@ public class ChatListFragment extends Fragment {
         chatListAdapter.notifyItemInserted(0);
         recyclerView.scrollToPosition(0);
     }
-
+*/
     private void initRecyclerView(View view){
         Context context=getContext();
         recyclerView=view.findViewById(R.id.chatList);
-        chatListAdapter=new ChatListAdapter(context,chatTitles,profilePics,recentChatMsgs,noOfUnreadMsgs);
+        chatListAdapter=new ChatListAdapter(context,chatSessions);
         recyclerView.setAdapter(chatListAdapter);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -82,61 +106,5 @@ public class ChatListFragment extends Fragment {
         recyclerView.addItemDecoration(divider);
     }
 
-    private void init(){
-        chatTitles.add("Alice");
-        profilePics.add("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
-        recentChatMsgs.add("Nandan Desai: Hi");
-        noOfUnreadMsgs.add(3);
-
-
-        chatTitles.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-        recentChatMsgs.add("Nandan Desai: You coming?");
-        noOfUnreadMsgs.add(13);
-
-        chatTitles.add("Alice's Group");
-        profilePics.add("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
-        recentChatMsgs.add("Nandan Desai: Hi");
-        noOfUnreadMsgs.add(0);
-
-
-        chatTitles.add("Bob's Group");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-        recentChatMsgs.add("Nandan Desai: You coming?");
-        noOfUnreadMsgs.add(13);
-
-        chatTitles.add("Alice");
-        profilePics.add("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
-        recentChatMsgs.add("Nandan Desai: Hi");
-        noOfUnreadMsgs.add(3);
-
-
-        chatTitles.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-        recentChatMsgs.add("Nandan Desai: You coming?");
-        noOfUnreadMsgs.add(0);
-
-        chatTitles.add("Alice");
-        profilePics.add("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
-        recentChatMsgs.add("Nandan Desai: Hi");
-        noOfUnreadMsgs.add(3);
-
-
-        chatTitles.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-        recentChatMsgs.add("Nandan Desai: You coming?");
-        noOfUnreadMsgs.add(13);
-
-        chatTitles.add("Alice");
-        profilePics.add("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg");
-        recentChatMsgs.add("Nandan Desai: Hi");
-        noOfUnreadMsgs.add(0);
-
-
-        chatTitles.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-        recentChatMsgs.add("Nandan Desai: You coming?");
-        noOfUnreadMsgs.add(13);
-    }
 
 }

@@ -16,8 +16,8 @@ public interface ChatMessageDao {
     @Insert
     void insert(ChatMessage chatMessage);
 
-    @Query("SELECT * FROM ChatMessage ORDER BY messageId ASC")
-    LiveData<List<ChatMessage>> getAllChatMessages();
+    @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId ORDER BY messageTime ASC")
+    LiveData<List<ChatMessage>> getAllChatMessages(String chatId);
 
     @Query("UPDATE ChatMessage SET messageStatus=:status WHERE messageId=:messageId")
     void updateMessageStatus(int messageId, String status);

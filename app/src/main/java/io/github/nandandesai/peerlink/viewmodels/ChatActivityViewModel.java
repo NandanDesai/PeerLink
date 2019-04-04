@@ -18,14 +18,13 @@ public class ChatActivityViewModel extends AndroidViewModel {
     public ChatActivityViewModel(@NonNull Application application) {
         super(application);
         chatMessageRepository=new ChatMessageRepository(application);
-        chatMessages=chatMessageRepository.getChatMessages();
     }
 
     public void insert(ChatMessage chatMessage){
         chatMessageRepository.insert(chatMessage);
     }
 
-    public LiveData<List<ChatMessage>> getChatMessages() {
-        return chatMessages;
+    public LiveData<List<ChatMessage>> getChatMessages(String chatId) {
+        return chatMessageRepository.getChatMessages(chatId);
     }
 }

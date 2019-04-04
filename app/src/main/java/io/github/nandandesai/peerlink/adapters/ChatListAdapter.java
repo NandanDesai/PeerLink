@@ -1,5 +1,6 @@
 package io.github.nandandesai.peerlink.adapters;
 
+import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -10,32 +11,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.ChatActivity;
 import io.github.nandandesai.peerlink.R;
+import io.github.nandandesai.peerlink.models.ChatSession;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder>{
 
     private static final String TAG = "ChatListAdapter";
 
     private Context context;
-    private ArrayList<String> chatTitles=new ArrayList<>();
-    private ArrayList<String> profilePics=new ArrayList<>();
-    private ArrayList<String> recentChatMsgs=new ArrayList<>();
-    private ArrayList<Integer> noOfUnreadMsgs=new ArrayList<>();
 
-    public ChatListAdapter(Context context, ArrayList<String> chatTitles, ArrayList<String> profilePics, ArrayList<String> recentChatMsgs, ArrayList<Integer> noOfUnreadMsgs) {
-        this.context = context;
-        this.chatTitles = chatTitles;
-        this.profilePics = profilePics;
-        this.recentChatMsgs = recentChatMsgs;
-        this.noOfUnreadMsgs = noOfUnreadMsgs;
+    private List<ChatSession> chatSessions=new ArrayList<>();
+
+    public ChatListAdapter(Context context, List<ChatSession> chatSessions){
+        this.context=context;
+        this.chatSessions=chatSessions;
     }
 
     @NonNull
@@ -53,18 +50,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         //set the profile picture
         Glide.with(context)
                 .asBitmap()
-                .load(profilePics.get(i))
+                .load(chatSessions.get(i).getIcon())
                 .into(viewHolder.profilePicImageView);
 
         //set the chat title
-        viewHolder.chatTitleView.setText(chatTitles.get(i));
+        viewHolder.chatTitleView.setText(chatSessions.get(i).getName());
 
         //set the recent chat message
-        viewHolder.recentChatMsgView.setText(recentChatMsgs.get(i));
-        Log.d(TAG, "onBindViewHolder: array size: "+noOfUnreadMsgs.get(i));
+        viewHolder.recentChatMsgView.setText(chatSessions.get(i).getLastMessage());
         //set the unread messages count
-        if(noOfUnreadMsgs.get(i)>0){
-            viewHolder.unreadMsgCountView.setText(noOfUnreadMsgs.get(i)+"");
+        if(chatSessions.get(i).getNoOfUnreadMessages()>0){
+            viewHolder.unreadMsgCountView.setVisibility(View.VISIBLE);
+            viewHolder.unreadMsgCountView.setText(chatSessions.get(i).getNoOfUnreadMessages()+"");
         }else{
             viewHolder.unreadMsgCountView.setVisibility(View.INVISIBLE);
         }
@@ -74,9 +71,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         viewHolder.chatListItemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: chatTitle is :"+chatTitles.get(i));
+                Log.d(TAG, "onClick: chatTitle is :"+chatSessions.get(i).getChatId());
                 Intent intent=new Intent(context, ChatActivity.class);
-                intent.putExtra("name", chatTitles.get(i));
+                intent.putExtra("chatId", chatSessions.get(i).getChatId());
                 context.startActivity(intent);
             }
         });
@@ -85,7 +82,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return chatTitles.size();
+        return chatSessions.size();
+    }
+
+    public void setChatSessions(List<ChatSession> chatSessions){
+        this.chatSessions=chatSessions;
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{

@@ -12,12 +12,10 @@ import io.github.nandandesai.peerlink.models.ChatMessage;
 
 public class ChatMessageRepository {
     private ChatMessageDao chatMessageDao;
-    private LiveData<List<ChatMessage>> chatMessages;
 
     public ChatMessageRepository(Application application){
         PeerLinkDatabase peerLinkDatabase=PeerLinkDatabase.getInstance(application);
         chatMessageDao=peerLinkDatabase.chatMessageDao();
-        chatMessages=chatMessageDao.getAllChatMessages();
     }
 
     public void insert(ChatMessage chatMessage){
@@ -28,8 +26,8 @@ public class ChatMessageRepository {
         new UpdateChatMessage(chatMessageDao).execute(messageId, status);
     }
 
-    public LiveData<List<ChatMessage>> getChatMessages(){
-        return chatMessages;
+    public LiveData<List<ChatMessage>> getChatMessages(String chatId){
+        return chatMessageDao.getAllChatMessages(chatId);
     }
 
     private static class InsertChatMessage extends AsyncTask<ChatMessage, Void, Void> {

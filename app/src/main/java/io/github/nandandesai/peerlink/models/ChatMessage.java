@@ -12,8 +12,8 @@ Used to store a chat message received from either a group or a direct conversati
 */
 
 
-@Entity(foreignKeys = @ForeignKey(entity = ChatSession.class,
-        parentColumns = "chatId",
+@Entity(foreignKeys = @ForeignKey(entity = PeerLinkSession.class,
+        parentColumns = "address",
         childColumns = "chatId",
         onDelete = CASCADE))
 public class ChatMessage {
@@ -33,6 +33,13 @@ public class ChatMessage {
 
     @PrimaryKey(autoGenerate = true) private int messageId;
     private String messageContent;
+
+    /*
+        messageFrom and messageTo will be used to determine incoming and outgoing messages.
+        They can also be used to determine in-group replies.
+
+        chatId will refer to the address in the session table
+    */
     private String messageFrom; //From ID
     private String messageTo;   //To ID
     private String messageStatus;

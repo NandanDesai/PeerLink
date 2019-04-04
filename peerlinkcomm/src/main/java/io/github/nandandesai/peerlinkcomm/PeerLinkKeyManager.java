@@ -20,17 +20,11 @@ import java.io.IOException;
 import io.github.nandandesai.peerlinkcomm.utils.PeerLinkPreferences;
 
 public class PeerLinkKeyManager {
-    public static final String SHARED_PREF_MY_IDENTITY_KEY="my_identity_key";
-    public static final String SHARED_PREF_MY_REGISTRATION_ID="my_registration_id";
-
-    public static final String SHARED_PREF_NAME="PeerLinkSharedPrefs";
 
     private SignalProtocolStore store;
-    private Context context;
-    private final int myDeviceId=1;
+    private static final int myDeviceId=1;
     private PeerLinkPreferences preferences;
     public PeerLinkKeyManager(Context context, SignalProtocolStore store) {
-        this.context=context;
         this.store = store;
         this.preferences=new PeerLinkPreferences(context);
     }

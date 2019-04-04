@@ -7,6 +7,8 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
 
 
@@ -18,13 +20,13 @@ import io.github.nandandesai.peerlink.models.PeerLinkPreKey;
 import io.github.nandandesai.peerlink.models.PeerLinkSession;
 import io.github.nandandesai.peerlink.models.PeerLinkSignedPreKey;
 
-@Database(entities = {ChatMessage.class, ChatSession.class, Contact.class, PeerLinkIdentityKey.class, PeerLinkPreKey.class, PeerLinkSession.class, PeerLinkSignedPreKey.class},version = 1)
+@Database(entities = {ChatMessage.class, ChatSession.class, Contact.class, PeerLinkIdentityKey.class, PeerLinkPreKey.class, PeerLinkSession.class, PeerLinkSignedPreKey.class},version = 3)
 public abstract class PeerLinkDatabase extends RoomDatabase {
     private static final String TAG = "PeerLinkDatabase";
     private static PeerLinkDatabase instance;
     private static final String DB_NAME="peerlink.db";
     public abstract ChatMessageDao chatMessageDao();
-    public abstract ChatSessionDao chatDao();
+    public abstract ChatSessionDao chatSessionDao();
     public abstract ContactDao contactDao();
     public abstract IdentityKeyDao identityKeyStoreDao();
     public abstract PreKeyDao preKeyStoreDao();
@@ -56,15 +58,31 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
 
     private static class InitializeDb extends AsyncTask<Void, Void, Void>{
         private ContactDao contactDao;
-
+        private SessionDao sessionDao;
+        private ChatSessionDao chatSessionDao;
         public InitializeDb(PeerLinkDatabase database) {
             this.contactDao = database.contactDao();
+            this.sessionDao= database.sessionStoreDao();
+            this.chatSessionDao=database.chatSessionDao();
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            Contact contact = new Contact("< incomplete >", "< incomplete >", "Me","Hey there! I'm using PeerLink.");
+            Contact contact = new Contact("1", "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80", "Me","Hey there! I'm using PeerLink.");
             contactDao.insert(contact);
+
+            Log.d(TAG, "doInBackground: Sample contact inserted which represents the owner of the app as 'Me'");
+
+            PeerLinkSession peerLinkSession=new PeerLinkSession("abcd123", 1, null);
+            sessionDao.insert(peerLinkSession);
+
+            Log.d(TAG, "doInBackground: Sample peerlink session inserted.");
+
+            ChatSession chatSession=new ChatSession("abcd123", "Sample", ChatSession.TYPE.DIRECT, 0, "", 0, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
+            chatSessionDao.insert(chatSession);
+
+            Log.d(TAG, "doInBackground: Sample ChatSession inserted");
+
             return null;
         }
     }

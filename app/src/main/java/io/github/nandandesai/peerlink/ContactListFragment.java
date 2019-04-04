@@ -1,8 +1,11 @@
 package io.github.nandandesai.peerlink;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -14,16 +17,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.github.nandandesai.peerlink.adapters.ContactListAdapter;
+import io.github.nandandesai.peerlink.models.Contact;
+import io.github.nandandesai.peerlink.viewmodels.ChatActivityViewModel;
+import io.github.nandandesai.peerlink.viewmodels.ContactListViewModel;
 
 
 public class ContactListFragment extends Fragment {
-
-    private ArrayList<String> profilePics=new ArrayList<>();
-    private ArrayList<String> contactNames=new ArrayList<>();
+    private List<Contact> contacts=new ArrayList<>();
 
     private RecyclerView recyclerView;
+
+    private ContactListViewModel contactListViewModel;
+
+    private ContactListAdapter contactListAdapter;
 
     public ContactListFragment() {
 
@@ -44,14 +53,22 @@ public class ContactListFragment extends Fragment {
             }
         });
         initRecyclerView(view);
-        initTEST();
+
+        contactListViewModel = ViewModelProviders.of(this).get(ContactListViewModel.class);
+        contactListViewModel.getContacts().observe(this, new Observer<List<Contact>>() {
+            @Override
+            public void onChanged(@Nullable List<Contact> contacts) {
+                contactListAdapter.setContactList(contacts);
+            }
+        });
+
         return view;
     }
 
     private void initRecyclerView(View view){
         recyclerView=view.findViewById(R.id.contact_list);
         Context context=getContext();
-        ContactListAdapter contactListAdapter=new ContactListAdapter(context, profilePics, contactNames);
+        contactListAdapter=new ContactListAdapter(context, contacts);
         recyclerView.setAdapter(contactListAdapter);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -60,16 +77,5 @@ public class ContactListFragment extends Fragment {
         recyclerView.addItemDecoration(divider);
     }
 
-    private void initTEST(){
-        contactNames.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
 
-        contactNames.add("Alice");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-
-        contactNames.add("Bob");
-        profilePics.add("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
-
-
-    }
 }

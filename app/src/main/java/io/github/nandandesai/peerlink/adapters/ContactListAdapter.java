@@ -13,19 +13,20 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.R;
+import io.github.nandandesai.peerlink.models.Contact;
 
 public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.ViewHolder>{
     private Context context;
-    private ArrayList<String> profilePics=new ArrayList<>();
-    private ArrayList<String> contactNames=new ArrayList<>();
 
-    public ContactListAdapter(Context context, ArrayList<String> profilePics, ArrayList<String> contactNames) {
+    private List<Contact> contactList=new ArrayList<>();
+
+    public ContactListAdapter(Context context, List<Contact> contacts) {
         this.context = context;
-        this.profilePics = profilePics;
-        this.contactNames = contactNames;
+        this.contactList=contacts;
     }
 
     @NonNull
@@ -40,22 +41,30 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         Glide.with(context)
                 .asBitmap()
-                .load(profilePics.get(i))
+                .load(contactList.get(i).getProfilePic())
                 .into(viewHolder.profilePicImageView);
 
-        viewHolder.contactNameView.setText(contactNames.get(i));
+        viewHolder.contactNameView.setText(contactList.get(i).getName());
 
         viewHolder.contactListItemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Contact Item Clicked: "+contactNames.get(i), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Contact Item Clicked: "+contactList.get(i).getName(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return contactNames.size();
+        return contactList.size();
+    }
+
+    public void setContactList(List<Contact> contacts){
+        contactList=contacts;
+
+        //this could be changed to notifyItemInserted or something to get animation effects
+        //watch video from Coding In Flow youtube channel
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{

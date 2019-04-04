@@ -6,7 +6,7 @@ android {
 
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,12 @@ dependencies {
 
     //json serialization/deserialization
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    //http server for receiving stuff from peers
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    //for making http requests
+    implementation 'com.squareup.okhttp3:okhttp:3.13.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

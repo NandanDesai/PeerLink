@@ -33,6 +33,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private ChatActivityViewModel chatActivityViewModel;
 
+    private String chatId;
+
     private ImageView emojiButton;
     private EmojiEditText messageInput;
     private ImageButton sendButton;
@@ -50,6 +52,8 @@ public class ChatActivity extends AppCompatActivity {
         chatMessagesListView=findViewById(R.id.chatMessageList);
 
 
+        chatId=getIntent().getStringExtra("chatId");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -66,7 +70,7 @@ public class ChatActivity extends AppCompatActivity {
         chatMessagesListView.setAdapter(chatMessagesAdapter);
 
         chatActivityViewModel= ViewModelProviders.of(this).get(ChatActivityViewModel.class);
-        chatActivityViewModel.getChatMessages().observe(this, new Observer<List<ChatMessage>>() {
+        chatActivityViewModel.getChatMessages(chatId).observe(this, new Observer<List<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable List<ChatMessage> chatMessages) {
                 chatMessagesAdapter.setChatMessages(chatMessages);
@@ -90,11 +94,11 @@ public class ChatActivity extends AppCompatActivity {
                 if(!messageContent.equals("")){
                     Log.d(TAG, "onClick: "+messageInput.getText());
                     String messageFrom="1";
-                    String messageTo="asdf1234";
+                    String messageTo="abcd123";
                     String messageStatus=ChatMessage.STATUS.WAITING;
                     long messageTime=System.currentTimeMillis();
                     String messageType=ChatMessage.TYPE.TEXT;
-                    String chatId="asdf;lkjj";
+                    String chatId="abcd123";
                     ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,chatId);
                     chatActivityViewModel.insert(chatMessage);
 
