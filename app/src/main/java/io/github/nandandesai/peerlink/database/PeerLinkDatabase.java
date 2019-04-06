@@ -40,6 +40,7 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
             SafeHelperFactory factory = new SafeHelperFactory(passPhrase.toCharArray());
             instance=Room.databaseBuilder(context, PeerLinkDatabase.class, DB_NAME)
                     .openHelperFactory(factory)
+                    //.allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .addCallback(roomCallback)
                     .build();
@@ -78,7 +79,7 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
 
             Log.d(TAG, "doInBackground: Sample peerlink session inserted.");
 
-            ChatSession chatSession=new ChatSession("abcd123", "Sample", ChatSession.TYPE.DIRECT, 0, "", 0, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
+            ChatSession chatSession=new ChatSession("abcd123", "Sample", ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80");
             chatSessionDao.insert(chatSession);
 
             Log.d(TAG, "doInBackground: Sample ChatSession inserted");

@@ -12,12 +12,12 @@ import io.github.nandandesai.peerlink.database.PeerLinkDatabase;
 import io.github.nandandesai.peerlink.models.ChatSession;
 
 
-public class ChatRepository {
-    private static final String TAG = "ChatRepository";
+public class ChatListRepository {
+    private static final String TAG = "ChatListRepository";
     private ChatSessionDao chatSessionDao;
     private LiveData<List<ChatSession>> chats;
 
-    public ChatRepository(Application application){
+    public ChatListRepository(Application application){
         PeerLinkDatabase peerLinkDatabase=PeerLinkDatabase.getInstance(application);
         chatSessionDao =peerLinkDatabase.chatSessionDao();
         chats= chatSessionDao.getAllChats();
@@ -27,15 +27,35 @@ public class ChatRepository {
         return chats;
     }
 
+    ///////////////
+    public LiveData<Integer> getNumberOfUnreadMsgs(String chatId){
+        return chatSessionDao.getNumberOfUnreadMsgs(chatId);
+    }
+
+    public LiveData<String> getRecentMsg(String chatId){
+        return chatSessionDao.getRecentMsg(chatId);
+    }
+
+    public LiveData<String> getIcon(String chatId){
+        return chatSessionDao.getIcon(chatId);
+    }
+
+    public LiveData<String> getName(String chatId){
+        return chatSessionDao.getName(chatId);
+    }
+
+    public LiveData<List<String>> getAllChatIds(){
+        return chatSessionDao.getAllChatIds();
+    }
+///////////////////////
+
+
     public void insertChat(ChatSession chatSession){
         new InsertChat(chatSessionDao).execute(chatSession);
     }
 
-    public void updateChat(String chatId, long time, String lastMessage){
-        new UpdateChat(chatSessionDao).execute(chatId,time,lastMessage);
-    }
 
-    public ChatSession getChatSession(String chatId){
+    public LiveData<ChatSession> getChatSession(String chatId){
         return chatSessionDao.getChatSession(chatId);
     }
 
@@ -58,23 +78,7 @@ public class ChatRepository {
         }
     }
 
-    private static class UpdateChat extends AsyncTask<Object, Void, Void>{
 
-        private ChatSessionDao chatSessionDao;
-
-        UpdateChat(ChatSessionDao chatSessionDao) {
-            this.chatSessionDao = chatSessionDao;
-        }
-
-        @Override
-        protected Void doInBackground(Object... objects) {
-            int currentUnread=chatSessionDao.getNoOfUnreadMsgs((String) objects[0]);
-            int updatedUnread=currentUnread+1;
-            Log.d(TAG, "doInBackground: Total Unread = "+updatedUnread);
-            chatSessionDao.update((String) objects[0], (Long)objects[1], (String)objects[2],updatedUnread);
-            return null;
-        }
-    }
 
     private static class DeleteChat extends AsyncTask<String, Void, Void>{
 

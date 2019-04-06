@@ -7,33 +7,48 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
+import io.github.nandandesai.peerlink.repositories.ChatListRepository;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
-import io.github.nandandesai.peerlink.repositories.ChatRepository;
 
 public class ChatListViewModel extends AndroidViewModel {
 
-    private ChatRepository chatRepository;
+    private ChatListRepository chatListRepository;
     private LiveData<List<ChatSession>> chatSessions;
 
     private ChatMessageRepository TESTchatMessageRepository;
 
     public ChatListViewModel(@NonNull Application application) {
         super(application);
-        chatRepository=new ChatRepository(application);
+        chatListRepository =new ChatListRepository(application);
         //
         TESTchatMessageRepository=new ChatMessageRepository(application);
         //
-        chatSessions=chatRepository.getChats();
+        chatSessions= chatListRepository.getChats();
     }
 
     public void insert(ChatSession chatSession){
-        chatRepository.insertChat(chatSession);
+        chatListRepository.insertChat(chatSession);
     }
 
-    public void update(String chatId, long time, String lastMessage){
-        chatRepository.updateChat(chatId,time,lastMessage);
+    public LiveData<Integer> getNumberOfUnreadMsgs(String chatId){
+        return chatListRepository.getNumberOfUnreadMsgs(chatId);
+    }
+
+    public LiveData<String> getRecentMsg(String chatId){
+        return chatListRepository.getRecentMsg(chatId);
+    }
+
+    public LiveData<String> getIcon(String chatId){
+        return chatListRepository.getIcon(chatId);
+    }
+
+    public LiveData<String> getName(String chatId){
+        return chatListRepository.getName(chatId);
+    }
+
+    public LiveData<List<String>> getAllChatIds(){
+        return chatListRepository.getAllChatIds();
     }
 
     public LiveData<List<ChatSession>> getChatSessions() {

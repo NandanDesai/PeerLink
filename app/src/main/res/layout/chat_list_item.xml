@@ -21,7 +21,6 @@
                 android:id="@+id/chatTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="This is some long title"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -36,7 +35,7 @@
                     android:layout_centerInParent="true"
                     android:layout_marginRight="10dp"
                     android:background="@drawable/badge"
-                    android:text="3"
+                    android:text="0"
                     android:textColor="#FFF"
                     android:textSize="14sp" />
             </RelativeLayout>
@@ -46,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/chatTitle"
                 android:layout_marginTop="5dp"
-                android:text="Nandan Desai: This is "
                 android:textSize="14sp" />
         </RelativeLayout>
 </RelativeLayout>

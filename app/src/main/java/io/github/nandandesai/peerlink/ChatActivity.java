@@ -24,6 +24,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.adapters.ChatMessagesAdapter;
 import io.github.nandandesai.peerlink.models.ChatMessage;
+import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.viewmodels.ChatActivityViewModel;
 
 
@@ -54,17 +55,6 @@ public class ChatActivity extends AppCompatActivity {
 
         chatId=getIntent().getStringExtra("chatId");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        TextView chatUserNameView=toolbar.findViewById(R.id.chatToolbarTitle);
-        chatUserNameView.setText(getIntent().getStringExtra("name"));
-        CircleImageView toolbarProfileImageView=findViewById(R.id.chatToolbarIcon);
-        Glide.with(this)
-                .asBitmap()
-                .load("https://www.trickscity.com/wp-content/uploads/2018/02/cute-girl-profile-pics.jpg")
-                .into(toolbarProfileImageView);
-
         final ChatMessagesAdapter chatMessagesAdapter=new ChatMessagesAdapter(this);
         chatMessagesListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatMessagesListView.setAdapter(chatMessagesAdapter);
@@ -76,6 +66,32 @@ public class ChatActivity extends AppCompatActivity {
                 chatMessagesAdapter.setChatMessages(chatMessages);
             }
         });
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView chatUserNameView=toolbar.findViewById(R.id.chatToolbarTitle);
+        CircleImageView toolbarProfileImageView=findViewById(R.id.chatToolbarIcon);
+
+        chatActivityViewModel.getChatListRepository().getChatSession(chatId).observe(this, new Observer<ChatSession>() {
+            @Override
+            public void onChanged(@Nullable ChatSession chatSession) {
+                chatUserNameView.setText(chatSession.getName());
+                Glide.with(ChatActivity.this)
+                        .asBitmap()
+                        .load(chatSession.getIcon())
+                        .into(toolbarProfileImageView);
+                //You should also add an "Online" status to the ChatSession and use it here. Using LiveData here is useful to
+                //dynamically update
+            }
+        });
+
+        //call the below method to get a list of messages that are not read
+        //and then send a Read Receipt reply to the sender
+        //chatActivityViewModel.getAllUnreadMsgs()
+        //after that, mark those messages as read in your own database by calling the below method
+
+        chatActivityViewModel.updateUnreadMessagesToRead(chatId);
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +111,7 @@ public class ChatActivity extends AppCompatActivity {
                     Log.d(TAG, "onClick: "+messageInput.getText());
                     String messageFrom="1";
                     String messageTo="abcd123";
-                    String messageStatus=ChatMessage.STATUS.WAITING;
+                    String messageStatus=ChatMessage.STATUS.WAITING_TO_SEND;
                     long messageTime=System.currentTimeMillis();
                     String messageType=ChatMessage.TYPE.TEXT;
                     String chatId="abcd123";
@@ -105,9 +121,6 @@ public class ChatActivity extends AppCompatActivity {
                     messageInput.getText().clear();
 
                 }
-
-
-
             }
         });
 

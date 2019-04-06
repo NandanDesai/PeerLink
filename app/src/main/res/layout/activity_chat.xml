@@ -41,7 +41,6 @@
                     android:paddingTop="5dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Toolbar Title"
                     android:clickable="true"
                     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title" />
 

@@ -15,21 +15,27 @@ public interface ChatSessionDao {
     @Insert
     void insert(ChatSession chatSession);
 
-    @Query("SELECT * FROM ChatSession ORDER BY lastUpdated ASC")
+    @Query("SELECT * FROM ChatSession")
     LiveData<List<ChatSession>> getAllChats();
 
     @Query("SELECT * FROM ChatSession WHERE chatId=:chatId")
-    ChatSession getChatSession(String chatId);
-
-    @Query("UPDATE ChatSession SET lastUpdated=:lastUpdated, lastMessage=:lastMessage, noOfUnreadMessages=:noOfUnreadMsgs WHERE chatId=:chatId")
-    void update(String chatId, long lastUpdated, String lastMessage, int noOfUnreadMsgs);
+    LiveData<ChatSession> getChatSession(String chatId);
 
     @Query("DELETE FROM ChatSession WHERE chatId=:chatId")
     void delete(String chatId);
 
-    @Query("SELECT noOfUnreadMessages FROM ChatSession WHERE chatId=:chatId")
-    int getNoOfUnreadMsgs(String chatId);
+    @Query("SELECT Count(*) FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
+    LiveData<Integer> getNumberOfUnreadMsgs(String chatId);
 
-    @Query("UPDATE ChatSession SET noOfUnreadMessages=:noOfUnreadMsgs WHERE chatId=:chatId")
-    void setNoOfUnreadMsgs(String chatId, int noOfUnreadMsgs);
+    @Query("SELECT messageContent FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage)")
+    LiveData<String> getRecentMsg(String chatId);
+
+    @Query("SELECT icon FROM ChatSession WHERE chatId=:chatId")
+    LiveData<String> getIcon(String chatId);
+
+    @Query("SELECT name FROM ChatSession WHERE chatId=:chatId")
+    LiveData<String> getName(String chatId);
+
+    @Query("SELECT chatId FROM ChatSession")
+    LiveData<List<String>> getAllChatIds();
 }

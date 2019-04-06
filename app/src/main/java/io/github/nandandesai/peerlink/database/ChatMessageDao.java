@@ -19,6 +19,10 @@ public interface ChatMessageDao {
     @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId ORDER BY messageTime ASC")
     LiveData<List<ChatMessage>> getAllChatMessages(String chatId);
 
-    @Query("UPDATE ChatMessage SET messageStatus=:status WHERE messageId=:messageId")
-    void updateMessageStatus(int messageId, String status);
+    @Query("SELECT * FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
+    LiveData<ChatMessage> getAllUnreadMsgs(String chatId);
+
+    @Query("UPDATE ChatMessage SET messageStatus='"+ChatMessage.STATUS.USER_READ+"' WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
+    void updateUnreadMessagesToRead(String chatId);
+
 }

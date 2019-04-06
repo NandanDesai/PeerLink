@@ -19,11 +19,12 @@ Used to store a chat message received from either a group or a direct conversati
 public class ChatMessage {
 
     public static class STATUS{
-        public static final String WAITING="waiting";
-        public static final String SERVER_SENT="server_sent";
-        public static final String DELIVERED="delivered";
-        public static final String RECIPIENT_READ="recipient_read";
-        public static final String USER_READ="user_read";
+        public static final String WAITING_TO_SEND="waiting";
+        public static final String SENT_TO_SERVER="server_sent";
+        public static final String DELIVERED_TO_RECIPIENT="delivered";
+        public static final String RECIPIENT_READ="recipient_read";//the receiver has read the message
+        public static final String USER_READ="user_read";//I have read the message
+        public static final String USER_NOT_READ="user_not_read";
     }
 
     public static class TYPE{

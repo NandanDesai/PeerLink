@@ -8,16 +8,23 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import io.github.nandandesai.peerlink.models.ChatMessage;
+import io.github.nandandesai.peerlink.repositories.ChatListRepository;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
 
 public class ChatActivityViewModel extends AndroidViewModel {
 
     private ChatMessageRepository chatMessageRepository;
+    private ChatListRepository chatListRepository;
     private LiveData<List<ChatMessage>> chatMessages;
 
     public ChatActivityViewModel(@NonNull Application application) {
         super(application);
         chatMessageRepository=new ChatMessageRepository(application);
+        chatListRepository=new ChatListRepository(application);
+    }
+
+    public ChatListRepository getChatListRepository() {
+        return chatListRepository;
     }
 
     public void insert(ChatMessage chatMessage){
@@ -26,5 +33,13 @@ public class ChatActivityViewModel extends AndroidViewModel {
 
     public LiveData<List<ChatMessage>> getChatMessages(String chatId) {
         return chatMessageRepository.getChatMessages(chatId);
+    }
+
+    public LiveData<ChatMessage> getAllUnreadMsgs(String chatId){
+        return chatMessageRepository.getAllUnreadMsgs(chatId);
+    }
+
+    public void updateUnreadMessagesToRead(String chatId){
+        chatMessageRepository.updateUnreadMessagesToRead(chatId);
     }
 }

@@ -22,12 +22,21 @@ public class ChatMessageRepository {
         new InsertChatMessage(chatMessageDao).execute(chatMessage);
     }
 
+    @Deprecated
     public void update(int messageId, String status){
-        new UpdateChatMessage(chatMessageDao).execute(messageId, status);
+        //new UpdateChatMessage(chatMessageDao).execute(messageId, status);
     }
 
     public LiveData<List<ChatMessage>> getChatMessages(String chatId){
         return chatMessageDao.getAllChatMessages(chatId);
+    }
+
+    public LiveData<ChatMessage> getAllUnreadMsgs(String chatId){
+        return chatMessageDao.getAllUnreadMsgs(chatId);
+    }
+
+    public void updateUnreadMessagesToRead(String chatId){
+        new UpdateChatMessageToRead(chatMessageDao).execute(chatId);
     }
 
     private static class InsertChatMessage extends AsyncTask<ChatMessage, Void, Void> {
@@ -55,7 +64,22 @@ public class ChatMessageRepository {
 
         @Override
         protected Void doInBackground(Object... objects) {
-            chatMessageDao.updateMessageStatus((Integer) objects[0], (String) objects[1]);
+            ///chatMessageDao.updateMessageStatus((Integer) objects[0], (String) objects[1]);
+            return null;
+        }
+    }
+
+    private static class UpdateChatMessageToRead extends AsyncTask<Object, Void, Void>{
+
+        private  ChatMessageDao chatMessageDao;
+
+        public UpdateChatMessageToRead(ChatMessageDao chatMessageDao) {
+            this.chatMessageDao = chatMessageDao;
+        }
+
+        @Override
+        protected Void doInBackground(Object... objects) {
+            chatMessageDao.updateUnreadMessagesToRead((String) objects[0]);
             return null;
         }
     }

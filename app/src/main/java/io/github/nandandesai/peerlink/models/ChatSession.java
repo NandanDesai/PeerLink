@@ -22,18 +22,12 @@ public class ChatSession {
     private String chatId;
     private String name;
     private String type;
-    private long lastUpdated;
-    private String lastMessage;
-    private int noOfUnreadMessages;
     private String icon;
 
-    public ChatSession(String chatId, String name, String type, long lastUpdated, String lastMessage, int noOfUnreadMessages, String icon) {
+    public ChatSession(String chatId, String name, String type, String icon) {
         this.chatId = chatId;
         this.name = name;
         this.type = type;
-        this.lastUpdated = lastUpdated;
-        this.lastMessage = lastMessage;
-        this.noOfUnreadMessages = noOfUnreadMessages;
         this.icon = icon;
     }
 
@@ -53,32 +47,8 @@ public class ChatSession {
         this.type = type;
     }
 
-    public void setLastUpdated(long lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
-
-    public void setLastMessage(String lastMessage) {
-        this.lastMessage = lastMessage;
-    }
-
-    public void setNoOfUnreadMessages(int noOfUnreadMessages) {
-        this.noOfUnreadMessages = noOfUnreadMessages;
-    }
-
     public String getIcon() {
         return icon;
-    }
-
-    public String getLastMessage() {
-        return lastMessage;
-    }
-
-    public int getNoOfUnreadMessages() {
-        return noOfUnreadMessages;
-    }
-
-    public long getLastUpdated() {
-        return lastUpdated;
     }
 
     public String getChatId() {

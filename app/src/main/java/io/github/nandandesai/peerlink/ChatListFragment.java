@@ -1,5 +1,6 @@
 package io.github.nandandesai.peerlink;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +30,10 @@ import io.github.nandandesai.peerlink.viewmodels.ContactListViewModel;
 
 public class ChatListFragment extends Fragment {
 
+    private static final String TAG = "ChatListFragment";
     private ChatListAdapter chatListAdapter;
     private RecyclerView recyclerView;
-    private List<ChatSession> chatSessions=new ArrayList<>();
+    private List<ChatListAdapter.DataHolder> chatDataHolders=new ArrayList<>();
 
     private ChatListViewModel chatListViewModel;
 
@@ -56,28 +59,53 @@ public class ChatListFragment extends Fragment {
             }
         });
 
+        Log.d(TAG, "onCreateView: running...");
+
         initRecyclerView(view);
+
         chatListViewModel=ViewModelProviders.of(this).get(ChatListViewModel.class);
-        chatListViewModel.getChatSessions().observe(this, new Observer<List<ChatSession>>() {
+        chatListViewModel.getAllChatIds().observe(this, new Observer<List<String>>() {
             @Override
-            public void onChanged(@Nullable List<ChatSession> chatSessions) {
-                chatListAdapter.setChatSessions(chatSessions);
+            public void onChanged(@Nullable List<String> chatIds) {
+
+                Log.d(TAG, "onChanged: called");
+
+                try {
+                    LiveData<String> chatTitle;
+                    LiveData<String> chatProfilePic;
+                    LiveData<String> recentMsg;
+                    LiveData<Integer> noOfUnreadMsgs;
+                    for (String chatId : chatIds) {
+                        Log.d(TAG, "onChanged: for loop chatId: "+chatId);
+                        chatTitle=chatListViewModel.getName(chatId);
+                        chatProfilePic=chatListViewModel.getIcon(chatId);
+                        recentMsg=chatListViewModel.getRecentMsg(chatId);
+                        noOfUnreadMsgs=chatListViewModel.getNumberOfUnreadMsgs(chatId);
+                        ChatListAdapter.DataHolder dataHolder = new ChatListAdapter.DataHolder(chatId, chatTitle, chatProfilePic, recentMsg, noOfUnreadMsgs);
+                        chatDataHolders.add(dataHolder);
+                        chatListAdapter.setDataHolders(chatDataHolders);
+                    }
+                }catch (NullPointerException npe){
+                    Log.d(TAG, "onChanged: Null Pointer: "+npe.getMessage());
+                }
             }
         });
+
+
+
         return view;
     }
 
     private void TESTupdateChatItem(){
         String messageFrom="abcd123";
         String messageTo="1";
-        String messageStatus= ChatMessage.STATUS.WAITING;
+        String messageStatus= ChatMessage.STATUS.USER_NOT_READ;
         long messageTime=System.currentTimeMillis();
         String messageType=ChatMessage.TYPE.TEXT;
         String chatId="abcd123";
         String messageContent="Hi this is abcd123. How are you?";
         ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,chatId);
         chatListViewModel.getTESTchatMessageRepository().insert(chatMessage);
-        chatListViewModel.update(chatId, System.currentTimeMillis(), messageContent);
     }
 
 /*
@@ -94,7 +122,7 @@ public class ChatListFragment extends Fragment {
     private void initRecyclerView(View view){
         Context context=getContext();
         recyclerView=view.findViewById(R.id.chatList);
-        chatListAdapter=new ChatListAdapter(context,chatSessions);
+        chatListAdapter=new ChatListAdapter(context,this, chatDataHolders);
         recyclerView.setAdapter(chatListAdapter);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));

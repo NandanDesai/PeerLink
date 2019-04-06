@@ -1,9 +1,12 @@
 package io.github.nandandesai.peerlink.adapters;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,12 +31,15 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     private Context context;
 
-    private List<ChatSession> chatSessions=new ArrayList<>();
+    private List<DataHolder> dataHolders=new ArrayList<>();
 
-    public ChatListAdapter(Context context, List<ChatSession> chatSessions){
-        this.context=context;
-        this.chatSessions=chatSessions;
+    private LifecycleOwner lifecycleOwner;
+    public ChatListAdapter(Context context, LifecycleOwner lifecycleOwner, List<DataHolder> dataHolders) {
+        this.context = context;
+        this.lifecycleOwner=lifecycleOwner;
+        this.dataHolders=dataHolders;
     }
+
 
     @NonNull
     @Override
@@ -48,46 +54,66 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         Log.d(TAG, "onBindViewHolder: called");
 
         //set the profile picture
-        Glide.with(context)
-                .asBitmap()
-                .load(chatSessions.get(i).getIcon())
-                .into(viewHolder.profilePicImageView);
+        dataHolders.get(i).chatProfilePic.observe(lifecycleOwner, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                Glide.with(context)
+                        .asBitmap()
+                        .load(s)
+                        .into(viewHolder.profilePicImageView);
+            }
+        });
 
         //set the chat title
-        viewHolder.chatTitleView.setText(chatSessions.get(i).getName());
+        dataHolders.get(i).chatTitle.observe(lifecycleOwner, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                viewHolder.chatTitleView.setText(s);
+            }
+        });
 
         //set the recent chat message
-        viewHolder.recentChatMsgView.setText(chatSessions.get(i).getLastMessage());
+        dataHolders.get(i).recentMsg.observe(lifecycleOwner, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                viewHolder.recentChatMsgView.setText(s);
+            }
+        });
+
         //set the unread messages count
-        if(chatSessions.get(i).getNoOfUnreadMessages()>0){
-            viewHolder.unreadMsgCountView.setVisibility(View.VISIBLE);
-            viewHolder.unreadMsgCountView.setText(chatSessions.get(i).getNoOfUnreadMessages()+"");
-        }else{
-            viewHolder.unreadMsgCountView.setVisibility(View.INVISIBLE);
-        }
+        dataHolders.get(i).noOfUnreadMsgs.observe(lifecycleOwner, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer unreadMsgs) {
+                if(unreadMsgs>0){
+                    viewHolder.unreadMsgCountView.setVisibility(View.VISIBLE);
+                    viewHolder.unreadMsgCountView.setText(unreadMsgs+"");
+                }else{
+                    viewHolder.unreadMsgCountView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
         //viewHolder.chatListItemLayout.setTag("<some id to get in the next activity>");
 
         viewHolder.chatListItemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: chatTitle is :"+chatSessions.get(i).getChatId());
                 Intent intent=new Intent(context, ChatActivity.class);
-                intent.putExtra("chatId", chatSessions.get(i).getChatId());
+                intent.putExtra("chatId", dataHolders.get(i).chatId);
                 context.startActivity(intent);
             }
         });
 
     }
 
-    @Override
-    public int getItemCount() {
-        return chatSessions.size();
+    public void setDataHolders(List<DataHolder> dataHolders) {
+        this.dataHolders = dataHolders;
+        notifyDataSetChanged();
     }
 
-    public void setChatSessions(List<ChatSession> chatSessions){
-        this.chatSessions=chatSessions;
-        notifyDataSetChanged();
+    @Override
+    public int getItemCount() {
+        return dataHolders.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
@@ -107,4 +133,21 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             unreadMsgCountView=itemView.findViewById(R.id.noOfUnreadMsgs);
         }
     }
+
+    public static class DataHolder{
+        String chatId;
+        LiveData<String> chatTitle;
+        LiveData<String> chatProfilePic;
+        LiveData<String> recentMsg;
+        LiveData<Integer> noOfUnreadMsgs;
+
+        public DataHolder(String chatId, LiveData<String> chatTitle, LiveData<String> chatProfilePic, LiveData<String> recentMsg, LiveData<Integer> noOfUnreadMsgs) {
+            this.chatId=chatId;
+            this.chatTitle = chatTitle;
+            this.chatProfilePic = chatProfilePic;
+            this.recentMsg = recentMsg;
+            this.noOfUnreadMsgs = noOfUnreadMsgs;
+        }
+    }
+
 }
