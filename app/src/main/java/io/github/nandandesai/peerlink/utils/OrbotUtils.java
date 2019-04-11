@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm.utils;
+package io.github.nandandesai.peerlink.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;

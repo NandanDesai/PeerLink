@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm;
+package io.github.nandandesai.peerlink.core;
 
 import org.whispersystems.libsignal.DuplicateMessageException;
 import org.whispersystems.libsignal.InvalidKeyException;
@@ -12,7 +12,8 @@ import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
 
 import java.io.IOException;
 
-import io.github.nandandesai.peerlinkcomm.utils.Base64;
+import io.github.nandandesai.peerlink.utils.Base64;
+
 
 public class CryptoHandler {
     private SessionCipher sessionCipher;

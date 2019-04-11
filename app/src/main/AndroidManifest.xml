@@ -12,7 +12,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ProfileViewActivity"></activity>
+        <receiver
+            android:name=".services.PeerLinkRestartReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
+
+        <service
+            android:name=".services.PeerLinkMainService"
+            android:enabled="true" />
+
+        <activity android:name=".ProfileViewActivity" />
         <activity android:name=".CreateContactActivity" />
         <activity
             android:name=".MainActivity"

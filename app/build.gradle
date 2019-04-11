@@ -31,9 +31,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-
-    implementation project(':peerlinkcomm')
-
     implementation 'org.whispersystems:signal-protocol-android:2.7.0'
 
     //recycler view
@@ -48,6 +45,15 @@ dependencies {
 
     //emoji keyboard library
     implementation 'com.vanniktech:emoji-ios:0.6.0'
+
+    //json serialization/deserialization
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    //http server for receiving stuff from peers
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    //for making http requests
+    implementation 'com.squareup.okhttp3:okhttp:3.13.1'
 
     // Room components
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"

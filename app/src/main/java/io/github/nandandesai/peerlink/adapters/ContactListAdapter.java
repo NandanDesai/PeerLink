@@ -1,6 +1,7 @@
 package io.github.nandandesai.peerlink.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.github.nandandesai.peerlink.ChatActivity;
 import io.github.nandandesai.peerlink.R;
 import io.github.nandandesai.peerlink.models.Contact;
 
@@ -49,7 +51,9 @@ public class ContactListAdapter extends RecyclerView.Adapter<ContactListAdapter.
         viewHolder.contactListItemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Contact Item Clicked: "+contactList.get(i).getName(), Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(context, ChatActivity.class);
+                intent.putExtra("chatId", contactList.get(i).getId());
+                context.startActivity(intent);
             }
         });
     }

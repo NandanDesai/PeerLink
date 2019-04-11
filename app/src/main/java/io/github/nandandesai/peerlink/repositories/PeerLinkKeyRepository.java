@@ -2,8 +2,6 @@ package io.github.nandandesai.peerlink.repositories;
 
 
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.whispersystems.libsignal.*;
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import io.github.nandandesai.peerlinkcomm.utils.Base64;
 import io.github.nandandesai.peerlink.database.IdentityKeyDao;
 import io.github.nandandesai.peerlink.database.PeerLinkDatabase;
 import io.github.nandandesai.peerlink.database.PreKeyDao;
@@ -31,7 +28,8 @@ import io.github.nandandesai.peerlink.models.PeerLinkIdentityKey;
 import io.github.nandandesai.peerlink.models.PeerLinkPreKey;
 import io.github.nandandesai.peerlink.models.PeerLinkSession;
 import io.github.nandandesai.peerlink.models.PeerLinkSignedPreKey;
-import io.github.nandandesai.peerlinkcomm.utils.PeerLinkPreferences;
+import io.github.nandandesai.peerlink.utils.Base64;
+import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
 
 public class PeerLinkKeyRepository implements SignalProtocolStore {
 

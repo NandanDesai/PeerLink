@@ -28,6 +28,10 @@ public class ContactRepository {
         new UpdateContact(contactDao).execute(contact);
     }
 
+    public LiveData<Contact> getContact(String id){
+       return contactDao.getContact(id);
+    }
+
     public void delete(String id){
         new DeleteContact(contactDao).execute(id);
     }

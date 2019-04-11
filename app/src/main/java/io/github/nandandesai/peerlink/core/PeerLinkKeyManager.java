@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm;
+package io.github.nandandesai.peerlink.core;
 
 import android.content.Context;
 
@@ -17,7 +17,8 @@ import org.whispersystems.libsignal.util.KeyHelper;
 
 import java.io.IOException;
 
-import io.github.nandandesai.peerlinkcomm.utils.PeerLinkPreferences;
+import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
+
 
 public class PeerLinkKeyManager {
 

@@ -1,1 +1,1 @@
-include ':app', ':peerlinkcomm'
+include ':app'

@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm;
+package io.github.nandandesai.peerlink.core;
 
 import android.os.AsyncTask;
 

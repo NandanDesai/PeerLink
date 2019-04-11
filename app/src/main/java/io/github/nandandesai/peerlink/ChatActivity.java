@@ -25,6 +25,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.adapters.ChatMessagesAdapter;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
+import io.github.nandandesai.peerlink.models.Contact;
 import io.github.nandandesai.peerlink.viewmodels.ChatActivityViewModel;
 
 
@@ -70,21 +71,29 @@ public class ChatActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        TextView chatUserNameView=toolbar.findViewById(R.id.chatToolbarTitle);
+        TextView chatNameView=toolbar.findViewById(R.id.chatToolbarTitle);
         CircleImageView toolbarProfileImageView=findViewById(R.id.chatToolbarIcon);
 
-        chatActivityViewModel.getChatListRepository().getChatSession(chatId).observe(this, new Observer<ChatSession>() {
+        chatActivityViewModel.getContactRepository().getContact(chatId).observe(this, new Observer<Contact>() {
             @Override
-            public void onChanged(@Nullable ChatSession chatSession) {
-                chatUserNameView.setText(chatSession.getName());
+            public void onChanged(@Nullable Contact contact) {
+                if(contact==null){
+                    Log.d(TAG, "onChanged: contact doesn't exists. So, trying to get info from ChatSession table");
+                    //if the contact doesn't exists, then it is either a chat with an unsaved contact or a group chat.
+                    //so we'll try to retrieve info from the ChatSession table in the database.
+                    setInfoFromChatSession(chatNameView, toolbarProfileImageView);
+                    return;
+                }
+                Log.d(TAG, "onChanged: contact exists! Setting info on toolbar from Contact table");
+                chatNameView.setText(contact.getName());
                 Glide.with(ChatActivity.this)
                         .asBitmap()
-                        .load(chatSession.getIcon())
+                        .load(contact.getProfilePic())
                         .into(toolbarProfileImageView);
-                //You should also add an "Online" status to the ChatSession and use it here. Using LiveData here is useful to
-                //dynamically update
             }
         });
+
+
 
         //call the below method to get a list of messages that are not read
         //and then send a Read Receipt reply to the sender
@@ -103,7 +112,6 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 
                 String messageContent=messageInput.getText().toString();
                 messageContent=messageContent.trim();
@@ -147,5 +155,32 @@ public class ChatActivity extends AppCompatActivity {
     private void setUpEmojiPopup() {
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chatLayout)).build(messageInput);
     }
+
+
+    //this method will be used to set the toolbar info like the Name of the person/group and the profile pic/group icon from the
+    //ChatSession table from the database
+    private void setInfoFromChatSession(TextView chatNameView, ImageView toolbarProfileImageView){
+        chatActivityViewModel.getChatListRepository().getChatSession(chatId).observe(this, new Observer<ChatSession>() {
+            @Override
+            public void onChanged(@Nullable ChatSession chatSession) {
+                if(chatSession==null){
+                    Log.d(TAG, "onChanged: ChatSession doesn't exists on chatId: "+chatId);
+                    //here, you should check if there is an entry in the Contact table or not.
+                    //that is not done. I have just temporarily made this.
+                    chatNameView.setText(chatId);
+                    return;
+                }
+                Log.d(TAG, "onChanged: ChatSession info exists. I'm using that to set the toolbar info");
+                chatNameView.setText(chatSession.getName());
+                Glide.with(ChatActivity.this)
+                        .asBitmap()
+                        .load(chatSession.getIcon())
+                        .into(toolbarProfileImageView);
+                //You should also add an "Online" status to the ChatSession and use it here. Using LiveData here is useful to
+                //dynamically update
+            }
+        });
+    }
+
 
 }

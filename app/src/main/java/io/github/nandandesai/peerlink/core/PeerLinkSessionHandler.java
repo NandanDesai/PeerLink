@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm;
+package io.github.nandandesai.peerlink.core;
 
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.SessionBuilder;

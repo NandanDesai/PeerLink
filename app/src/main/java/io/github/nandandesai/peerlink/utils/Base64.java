@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm.utils;
+package io.github.nandandesai.peerlink.utils;
 
 
 /**
@@ -41,7 +41,7 @@ package io.github.nandandesai.peerlinkcomm.utils;
  *   signs) too soon. Also added an option to suppress the automatic decoding
  *   of gzipped streams. Also added experimental support for specifying a
  *   class loader when using the
- *   {@link #decodeToObject(java.lang.String, int, java.lang.ClassLoader)}
+ *   {@link #decodeToObject(String, int, ClassLoader)}
  *   method.</li>
  *  <li>v2.3.3 - Changed default char encoding to US-ASCII which reduces the internal Java
  *   footprint with its CharEncoders and so forth. Fixed some javadocs that were
@@ -1344,7 +1344,7 @@ public class Base64
      * @since 1.5
      */
     public static Object decodeToObject( String encodedObject )
-            throws java.io.IOException, java.lang.ClassNotFoundException {
+            throws java.io.IOException, ClassNotFoundException {
         return decodeToObject(encodedObject,NO_OPTIONS,null);
     }
 
@@ -1367,7 +1367,7 @@ public class Base64
      */
     public static Object decodeToObject(
             String encodedObject, int options, final ClassLoader loader )
-            throws java.io.IOException, java.lang.ClassNotFoundException {
+            throws java.io.IOException, ClassNotFoundException {
 
         // Decode and gunzip if necessary
         byte[] objBytes = decode( encodedObject, options );
@@ -1406,7 +1406,7 @@ public class Base64
         catch( java.io.IOException e ) {
             throw e;    // Catch and throw in order to execute finally{}
         }   // end catch
-        catch( java.lang.ClassNotFoundException e ) {
+        catch( ClassNotFoundException e ) {
             throw e;    // Catch and throw in order to execute finally{}
         }   // end catch
         finally {

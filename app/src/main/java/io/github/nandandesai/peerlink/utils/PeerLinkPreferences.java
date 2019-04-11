@@ -1,4 +1,4 @@
-package io.github.nandandesai.peerlinkcomm.utils;
+package io.github.nandandesai.peerlink.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -17,6 +17,11 @@ public class PeerLinkPreferences {
     private static final String SHARED_PREF_MY_REGISTRATION_ID="my_registration_id";
     private static final String SHARED_PREF_NAME="PeerLinkSharedPrefs";
 
+    private static final String FIRST_TIME_USE ="first_time_use";
+
+    private static final String MY_ONION_ADDRESS="my_onion_address";
+
+
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
@@ -32,7 +37,7 @@ public class PeerLinkPreferences {
     }
 
     public IdentityKeyPair getMyIdentityKeyPair() throws IOException, InvalidKeyException {
-        byte[] serializedIdentityKeyPair=Base64.decode(sharedPreferences.getString(SHARED_PREF_MY_IDENTITY_KEY,""));
+        byte[] serializedIdentityKeyPair= Base64.decode(sharedPreferences.getString(SHARED_PREF_MY_IDENTITY_KEY,""));
         return new IdentityKeyPair(serializedIdentityKeyPair);
     }
 
@@ -55,7 +60,8 @@ public class PeerLinkPreferences {
         return returningValue;
     }
 
-    public int getNextPreKeyId(){
+    //access to this method needs to be synchronized between threads
+    public synchronized int getNextPreKeyId(){
         int currentValue=sharedPreferences.getInt(SHARED_PREF_NEXT_PREKEYID, new SecureRandom().nextInt(Integer.MAX_VALUE));
         editor=sharedPreferences.edit();
         int returningValue=(currentValue+1)%Integer.MAX_VALUE;
@@ -79,5 +85,24 @@ public class PeerLinkPreferences {
         editor.putInt(SHARED_PREF_SIGNEDPREKEYID, returningValue);
         editor.apply();
         return returningValue;
+    }
+
+    public boolean isFirstTimeUse(){
+        boolean result=sharedPreferences.getBoolean(FIRST_TIME_USE, false);
+        editor=sharedPreferences.edit();
+        editor.putBoolean(FIRST_TIME_USE, true);
+        editor.apply();
+        return result;
+    }
+
+    //returns null if not exists
+    public String getMyOnionAddress(){
+        return sharedPreferences.getString(MY_ONION_ADDRESS, null);
+    }
+
+    public void setMyOnionAddress(String onionAddress){
+        editor=sharedPreferences.edit();
+        editor.putString(MY_ONION_ADDRESS, onionAddress);
+        editor.apply();
     }
 }

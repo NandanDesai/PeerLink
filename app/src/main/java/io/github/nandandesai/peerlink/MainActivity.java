@@ -1,35 +1,25 @@
 package io.github.nandandesai.peerlink;
 
-import android.support.design.widget.FloatingActionButton;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 
-import org.whispersystems.libsignal.IdentityKeyPair;
-import org.whispersystems.libsignal.state.PreKeyRecord;
-import org.whispersystems.libsignal.util.KeyHelper;
-import org.whispersystems.libsignal.state.SignedPreKeyRecord;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import io.github.nandandesai.peerlink.adapters.ChatListAdapter;
 import io.github.nandandesai.peerlink.adapters.TabLayoutPagerAdapter;
+import io.github.nandandesai.peerlink.services.PeerLinkMainService;
+import io.github.nandandesai.peerlink.utils.OrbotUtils;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
+    private Intent peerLinkServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        OrbotUtils.requestHiddenServiceOnPort(this, 9000);
 
         ViewPager viewPager = findViewById(R.id.view_pager);
         TabLayoutPagerAdapter tabLayoutPagerAdapter = new TabLayoutPagerAdapter(getSupportFragmentManager());
@@ -50,6 +41,44 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_chat_white_24dp);
         tabLayout.getTabAt(1).setIcon(R.drawable.ic_contacts_white_24dp);
+
+        peerLinkServiceIntent=new Intent(this, PeerLinkMainService.class);
+        if(!isMyServiceRunning(PeerLinkMainService.class)){
+            Log.d(TAG, "onCreate: starting the background service");
+            startService(peerLinkServiceIntent);
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: stopping the service");
+        stopService(peerLinkServiceIntent);
+        super.onDestroy();
+    }
+
+
+    //this method needs code to detect that the ActivityResult is coming from Orbot.
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        Bundle bundle=data.getExtras();
+        if(bundle.isEmpty()){
+            Log.d(TAG, "onActivityResult: no result from Orbot");
+        }else{
+            System.out.println("The onion link is: "+bundle.getString("hs_host"));
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.d(TAG, "isMyServiceRunning: true");
+                return true;
+            }
+        }
+        Log.d(TAG, "isMyServiceRunning: false");
+        return false;
     }
 
 
