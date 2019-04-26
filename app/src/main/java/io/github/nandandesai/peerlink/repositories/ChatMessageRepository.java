@@ -2,7 +2,6 @@ package io.github.nandandesai.peerlink.repositories;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.os.AsyncTask;
 
 import java.util.List;
 
@@ -19,68 +18,41 @@ public class ChatMessageRepository {
     }
 
     public void insert(ChatMessage chatMessage){
-        new InsertChatMessage(chatMessageDao).execute(chatMessage);
-    }
-
-    @Deprecated
-    public void update(int messageId, String status){
-        //new UpdateChatMessage(chatMessageDao).execute(messageId, status);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                chatMessageDao.insert(chatMessage);
+            }
+        }).start();
     }
 
     public LiveData<List<ChatMessage>> getChatMessages(String chatId){
         return chatMessageDao.getAllChatMessages(chatId);
     }
 
-    public LiveData<ChatMessage> getAllUnreadMsgs(String chatId){
+    public LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId){
         return chatMessageDao.getAllUnreadMsgs(chatId);
     }
 
-    public void updateUnreadMessagesToRead(String chatId){
-        new UpdateChatMessageToRead(chatMessageDao).execute(chatId);
+    public LiveData<List<ChatMessage>> getAllUnsentMsgs(){
+        return chatMessageDao.getAllUnsentMsgs();
     }
 
-    private static class InsertChatMessage extends AsyncTask<ChatMessage, Void, Void> {
-
-        private ChatMessageDao chatMessageDao;
-
-        private InsertChatMessage(ChatMessageDao chatMessageDao){
-            this.chatMessageDao=chatMessageDao;
-        }
-
-        @Override
-        protected Void doInBackground(ChatMessage... chatMessages) {
-            chatMessageDao.insert(chatMessages[0]);
-            return null;
-        }
+    public void updateMessageStatusWithChatId(String chatId, String fromStatus, String toStatus){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                chatMessageDao.updateMessageStatusWithChatId(chatId, fromStatus, toStatus);
+            }
+        }).start();
     }
 
-    private static class UpdateChatMessage extends AsyncTask<Object, Void, Void>{
-
-        private  ChatMessageDao chatMessageDao;
-
-        public UpdateChatMessage(ChatMessageDao chatMessageDao) {
-            this.chatMessageDao = chatMessageDao;
-        }
-
-        @Override
-        protected Void doInBackground(Object... objects) {
-            ///chatMessageDao.updateMessageStatus((Integer) objects[0], (String) objects[1]);
-            return null;
-        }
-    }
-
-    private static class UpdateChatMessageToRead extends AsyncTask<Object, Void, Void>{
-
-        private  ChatMessageDao chatMessageDao;
-
-        public UpdateChatMessageToRead(ChatMessageDao chatMessageDao) {
-            this.chatMessageDao = chatMessageDao;
-        }
-
-        @Override
-        protected Void doInBackground(Object... objects) {
-            chatMessageDao.updateUnreadMessagesToRead((String) objects[0]);
-            return null;
-        }
+    public void updateMessageStatusWithMessageId(int messageId, String status){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                chatMessageDao.updateMessageStatusWithMessageId(messageId, status);
+            }
+        }).start();
     }
 }

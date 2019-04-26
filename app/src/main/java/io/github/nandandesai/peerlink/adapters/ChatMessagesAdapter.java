@@ -15,6 +15,7 @@ import java.util.List;
 
 import io.github.nandandesai.peerlink.R;
 import io.github.nandandesai.peerlink.models.ChatMessage;
+import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
 
 public class ChatMessagesAdapter extends BaseAdapter {
 
@@ -49,7 +50,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
         //checking if the message is from the You or not
         //if it is not from You, then it is an incoming message from another party
-        if(!chatMessage.getMessageFrom().equalsIgnoreCase("1")){ //you may want to change this later
+        if(!chatMessage.getMessageFrom().equalsIgnoreCase(new PeerLinkPreferences(context).getMyOnionAddress())){
             if(view!=null && view.getTag() instanceof OutgoingMessageViewHolder){
                 view=null;
             }

@@ -3,11 +3,23 @@ package io.github.nandandesai.peerlink.utils;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.v7.app.AlertDialog;
 
 import java.util.List;
 
+import io.github.nandandesai.peerlink.R;
+
+
+//THIS NEEDS REVISION.
+//Take content from OrbotHelper class in NetCipher repository.
+
+
+////////////////////////////////////////
+//////////  THIS CLASS IS A TEMPORARY SETUP
+////////////////////////////////////////
 public class OrbotUtils {
     private final static int HS_REQUEST_CODE = 9999;
     private final static String ACTION_REQUEST_HS = "org.torproject.android.REQUEST_HS_PORT";
@@ -19,11 +31,21 @@ public class OrbotUtils {
         this.context = context;
     }
 
-    public static void requestHiddenServiceOnPort(Activity activity, int port) {
-        Intent intent = new Intent(ACTION_REQUEST_HS);
-        intent.setPackage(ORBOT_PACKAGE_NAME);
-        intent.putExtra("hs_port", port);
-        activity.startActivityForResult(intent, HS_REQUEST_CODE);
+    public AlertDialog.Builder requestHiddenServiceOnPort(Activity activity, int port) {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity, R.style.AlertDialogCustom);
+        alertDialog.setTitle("Generate Onion Service");
+        alertDialog.setMessage("Proceed to generate Onion Service? If already generated, then the same Onion Service will be used.");
+        alertDialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                Intent intent = new Intent(ACTION_REQUEST_HS);
+                intent.setPackage(ORBOT_PACKAGE_NAME);
+                intent.putExtra("hs_port", port);
+                activity.startActivityForResult(intent, HS_REQUEST_CODE);
+            }
+        });
+        return alertDialog;
     }
 
     public boolean isOrbotInstalled() {
@@ -49,37 +71,40 @@ public class OrbotUtils {
     }
 
 
-    public void requestOrbotStart(final Activity activity){
-        /*
+    public void orbotStart(Activity activity) {
+        Intent intent = new Intent(ORBOT_PACKAGE_NAME);
+        intent.setAction(ACTION_START_TOR);
+        activity.startActivityForResult(intent, 1);
+    }
+
+    public AlertDialog.Builder requestOrbotStart(final Activity activity){
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity, R.style.AlertDialogCustom);
         alertDialog.setTitle("Start Orbot");
-        alertDialog.setMessage("Tor is not running. Would you like to start it?");
-        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        alertDialog.setMessage("Orbot is not running. Would you like to start it?");
+        alertDialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
                 Intent intent = new Intent(ORBOT_PACKAGE_NAME);
                 intent.setAction(ACTION_START_TOR);
                 activity.startActivityForResult(intent, 1);
             }
         });
-        alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        });
-        alertDialog.show();
-        */
+        return alertDialog;
     }
 
     public void requestOrbotInstall(final Activity activity){
-        /*
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity, R.style.AlertDialogCustom);
         alertDialog.setTitle("Install Orbot");
-        alertDialog.setMessage("It looks like Orbot app is not installed on your phone. It is recommended that you install Orbot for Tor proxy.");
+        alertDialog.setMessage("It looks like Orbot app is not installed on your phone. Orbot is required for PeerLink to function.");
         alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                activity.finishAndRemoveTask();
             }
         });
         alertDialog.show();
-        */
     }
 
 }

@@ -13,7 +13,6 @@ import android.util.Log;
 
 import io.github.nandandesai.peerlink.adapters.TabLayoutPagerAdapter;
 import io.github.nandandesai.peerlink.services.PeerLinkMainService;
-import io.github.nandandesai.peerlink.utils.OrbotUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +28,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        OrbotUtils.requestHiddenServiceOnPort(this, 9000);
+        Intent intent=new Intent(this, FirstTimeSetupActivity.class);
+        startActivity(intent);
+
+        //OrbotUtils.requestHiddenServiceOnPort(this, 9000);
 
         ViewPager viewPager = findViewById(R.id.view_pager);
         TabLayoutPagerAdapter tabLayoutPagerAdapter = new TabLayoutPagerAdapter(getSupportFragmentManager());
@@ -59,15 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //this method needs code to detect that the ActivityResult is coming from Orbot.
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        Bundle bundle=data.getExtras();
-        if(bundle.isEmpty()){
-            Log.d(TAG, "onActivityResult: no result from Orbot");
-        }else{
-            System.out.println("The onion link is: "+bundle.getString("hs_host"));
-        }
-    }
+
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);

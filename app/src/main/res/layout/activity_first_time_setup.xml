@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:weightSum="3"
+    tools:context=".FirstTimeSetupActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/setup_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            android:text="PeerLink Setup"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+
+        <ProgressBar
+            android:id="@+id/setup_progress_bar"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_below="@+id/setup_app_name"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:indeterminateTintMode="src_atop" />
+
+        <TextView
+            android:id="@+id/setup_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/setup_progress_bar"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            android:text="status"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <com.kofigyan.stateprogressbar.StateProgressBar
+            android:id="@+id/state_progress_bar"
+            android:layout_below="@id/setup_progress_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            app:spb_stateBackgroundColor="@color/lightGrey"
+            app:spb_stateForegroundColor="@color/colorAccent"
+            app:spb_stateNumberBackgroundColor="@color/white"
+            app:spb_stateNumberForegroundColor="@color/white"
+            app:spb_currentStateDescriptionColor="@color/white"
+            app:spb_stateDescriptionColor="@color/white"
+            app:spb_animateToCurrentProgressState="true"
+            app:spb_checkStateCompleted="true"
+            app:spb_justifyMultilineDescription="false"
+            app:spb_stateDescriptionSize="12sp"
+            app:spb_descriptionTopSpaceIncrementer="5dp"
+            app:spb_descriptionLinesSpacing="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:spb_maxStateNumber="four"/>
+    </RelativeLayout>
+
+
+
+</LinearLayout>

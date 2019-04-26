@@ -55,6 +55,9 @@ dependencies {
     //for making http requests
     implementation 'com.squareup.okhttp3:okhttp:3.13.1'
 
+    //for creating step progress bar in FirstTimeSetupActivity
+    implementation 'com.kofigyan.stateprogressbar:stateprogressbar:1.0.0'
+
     // Room components
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
@@ -66,4 +69,8 @@ dependencies {
     // Lifecycle components
     implementation "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
+
+    // using WorkManager to send messages
+    implementation "android.arch.work:work-runtime:1.0.1"
+
 }

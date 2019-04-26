@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 import io.github.nandandesai.peerlink.models.ChatMessage;
+import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.models.Contact;
 import io.github.nandandesai.peerlink.repositories.ChatListRepository;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
@@ -27,12 +28,12 @@ public class ChatActivityViewModel extends AndroidViewModel {
         contactRepository=new ContactRepository(application);
     }
 
-    public ChatListRepository getChatListRepository() {
-        return chatListRepository;
+    public LiveData<ChatSession> getChatSession(String chatId){
+        return chatListRepository.getChatSession(chatId);
     }
 
-    public ContactRepository getContactRepository(){
-        return contactRepository;
+    public LiveData<Contact> getContact(String id){
+        return contactRepository.getContact(id);
     }
 
     public void insert(ChatMessage chatMessage){
@@ -43,11 +44,11 @@ public class ChatActivityViewModel extends AndroidViewModel {
         return chatMessageRepository.getChatMessages(chatId);
     }
 
-    public LiveData<ChatMessage> getAllUnreadMsgs(String chatId){
+    public LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId){
         return chatMessageRepository.getAllUnreadMsgs(chatId);
     }
 
-    public void updateUnreadMessagesToRead(String chatId){
-        chatMessageRepository.updateUnreadMessagesToRead(chatId);
+    public void updateMessageStatusWithChatId(String chatId, String fromStatus, String toStatus){
+        chatMessageRepository.updateMessageStatusWithChatId(chatId, fromStatus, toStatus);
     }
 }

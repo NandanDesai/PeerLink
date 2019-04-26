@@ -40,7 +40,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         this.dataHolders=dataHolders;
     }
 
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -53,22 +52,31 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
         Log.d(TAG, "onBindViewHolder: called");
 
-        //set the profile picture
-        dataHolders.get(i).chatProfilePic.observe(lifecycleOwner, new Observer<String>() {
+        dataHolders.get(i).chatSession.observe(lifecycleOwner, new Observer<ChatSession>() {
             @Override
-            public void onChanged(@Nullable String s) {
-                Glide.with(context)
-                        .asBitmap()
-                        .load(s)
-                        .into(viewHolder.profilePicImageView);
-            }
-        });
+            public void onChanged(@Nullable ChatSession chatSession) {
+                if(chatSession!=null){
 
-        //set the chat title
-        dataHolders.get(i).chatTitle.observe(lifecycleOwner, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                viewHolder.chatTitleView.setText(s);
+                    //set profile pic
+                    Glide.with(context)
+                            .asBitmap()
+                            .load(chatSession.getIcon())
+                            .into(viewHolder.profilePicImageView);
+
+                    //set chat title
+                    viewHolder.chatTitleView.setText(chatSession.getName());
+
+                    //configure onClickListener to go to next activity
+                    viewHolder.chatListItemLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent=new Intent(context, ChatActivity.class);
+                            intent.putExtra("chatId", chatSession.getChatId());
+                            context.startActivity(intent);
+                        }
+                    });
+
+                }
             }
         });
 
@@ -84,23 +92,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         dataHolders.get(i).noOfUnreadMsgs.observe(lifecycleOwner, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer unreadMsgs) {
-                if(unreadMsgs>0){
+                if(unreadMsgs!=null && unreadMsgs>0){
                     viewHolder.unreadMsgCountView.setVisibility(View.VISIBLE);
                     viewHolder.unreadMsgCountView.setText(unreadMsgs+"");
                 }else{
                     viewHolder.unreadMsgCountView.setVisibility(View.INVISIBLE);
                 }
-            }
-        });
-
-        //viewHolder.chatListItemLayout.setTag("<some id to get in the next activity>");
-
-        viewHolder.chatListItemLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(context, ChatActivity.class);
-                intent.putExtra("chatId", dataHolders.get(i).chatId);
-                context.startActivity(intent);
             }
         });
 
@@ -135,19 +132,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     }
 
     public static class DataHolder{
-        String chatId;
-        LiveData<String> chatTitle;
-        LiveData<String> chatProfilePic;
+        LiveData<ChatSession> chatSession;
         LiveData<String> recentMsg;
         LiveData<Integer> noOfUnreadMsgs;
 
-        public DataHolder(String chatId, LiveData<String> chatTitle, LiveData<String> chatProfilePic, LiveData<String> recentMsg, LiveData<Integer> noOfUnreadMsgs) {
-            this.chatId=chatId;
-            this.chatTitle = chatTitle;
-            this.chatProfilePic = chatProfilePic;
+        public DataHolder(LiveData<ChatSession> chatSession, LiveData<String> recentMsg, LiveData<Integer> noOfUnreadMsgs) {
+            this.chatSession = chatSession;
             this.recentMsg = recentMsg;
             this.noOfUnreadMsgs = noOfUnreadMsgs;
         }
+
     }
 
 }

@@ -12,10 +12,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".FirstTimeSetupActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <receiver
             android:name=".services.PeerLinkRestartReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
 
         <service
             android:name=".services.PeerLinkMainService"

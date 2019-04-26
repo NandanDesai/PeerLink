@@ -2,9 +2,9 @@ package io.github.nandandesai.peerlink;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -15,17 +15,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
-
 import java.util.List;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.adapters.ChatMessagesAdapter;
+import io.github.nandandesai.peerlink.core.PeerLinkSender;
+import io.github.nandandesai.peerlink.database.PeerLinkDatabase;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.models.Contact;
+import io.github.nandandesai.peerlink.models.PeerLinkSession;
+import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
 import io.github.nandandesai.peerlink.viewmodels.ChatActivityViewModel;
 
 
@@ -34,15 +41,19 @@ public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
 
     private ChatActivityViewModel chatActivityViewModel;
-
+    private ChatMessagesAdapter chatMessagesAdapter;
     private String chatId;
 
     private ImageView emojiButton;
     private EmojiEditText messageInput;
     private ImageButton sendButton;
     private ListView chatMessagesListView;
+    private PeerLinkPreferences preferences;
+    private EmojiPopup emojiPopup;
 
-    EmojiPopup emojiPopup;
+    private boolean contactExists = false;
+    private boolean chatSessionExists =false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,45 +64,25 @@ public class ChatActivity extends AppCompatActivity {
         sendButton=findViewById(R.id.send);
         chatMessagesListView=findViewById(R.id.chatMessageList);
 
+        preferences=new PeerLinkPreferences(this);
 
         chatId=getIntent().getStringExtra("chatId");
 
-        final ChatMessagesAdapter chatMessagesAdapter=new ChatMessagesAdapter(this);
+        chatMessagesAdapter=new ChatMessagesAdapter(this);
         chatMessagesListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatMessagesListView.setAdapter(chatMessagesAdapter);
 
         chatActivityViewModel= ViewModelProviders.of(this).get(ChatActivityViewModel.class);
-        chatActivityViewModel.getChatMessages(chatId).observe(this, new Observer<List<ChatMessage>>() {
-            @Override
-            public void onChanged(@Nullable List<ChatMessage> chatMessages) {
-                chatMessagesAdapter.setChatMessages(chatMessages);
-            }
-        });
 
+        //setup toolbar info
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         TextView chatNameView=toolbar.findViewById(R.id.chatToolbarTitle);
         CircleImageView toolbarProfileImageView=findViewById(R.id.chatToolbarIcon);
 
-        chatActivityViewModel.getContactRepository().getContact(chatId).observe(this, new Observer<Contact>() {
-            @Override
-            public void onChanged(@Nullable Contact contact) {
-                if(contact==null){
-                    Log.d(TAG, "onChanged: contact doesn't exists. So, trying to get info from ChatSession table");
-                    //if the contact doesn't exists, then it is either a chat with an unsaved contact or a group chat.
-                    //so we'll try to retrieve info from the ChatSession table in the database.
-                    setInfoFromChatSession(chatNameView, toolbarProfileImageView);
-                    return;
-                }
-                Log.d(TAG, "onChanged: contact exists! Setting info on toolbar from Contact table");
-                chatNameView.setText(contact.getName());
-                Glide.with(ChatActivity.this)
-                        .asBitmap()
-                        .load(contact.getProfilePic())
-                        .into(toolbarProfileImageView);
-            }
-        });
+
+        setupLiveDataObservers(chatNameView, toolbarProfileImageView);
 
 
 
@@ -99,8 +90,7 @@ public class ChatActivity extends AppCompatActivity {
         //and then send a Read Receipt reply to the sender
         //chatActivityViewModel.getAllUnreadMsgs()
         //after that, mark those messages as read in your own database by calling the below method
-
-        chatActivityViewModel.updateUnreadMessagesToRead(chatId);
+        chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,13 +107,13 @@ public class ChatActivity extends AppCompatActivity {
                 messageContent=messageContent.trim();
                 if(!messageContent.equals("")){
                     Log.d(TAG, "onClick: "+messageInput.getText());
-                    String messageFrom="1";
-                    String messageTo="abcd123";
+                    String messageFrom=preferences.getMyOnionAddress();
+                    String messageTo=chatId;
                     String messageStatus=ChatMessage.STATUS.WAITING_TO_SEND;
                     long messageTime=System.currentTimeMillis();
                     String messageType=ChatMessage.TYPE.TEXT;
-                    String chatId="abcd123";
-                    ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,chatId);
+                    String id=chatId;
+                    ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,id);
                     chatActivityViewModel.insert(chatMessage);
 
                     messageInput.getText().clear();
@@ -156,30 +146,95 @@ public class ChatActivity extends AppCompatActivity {
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chatLayout)).build(messageInput);
     }
 
+    private void setupLiveDataObservers(TextView chatNameView, CircleImageView toolbarProfileImageView){
 
-    //this method will be used to set the toolbar info like the Name of the person/group and the profile pic/group icon from the
-    //ChatSession table from the database
-    private void setInfoFromChatSession(TextView chatNameView, ImageView toolbarProfileImageView){
-        chatActivityViewModel.getChatListRepository().getChatSession(chatId).observe(this, new Observer<ChatSession>() {
+        chatActivityViewModel.getContact(chatId).observe(this, new Observer<Contact>() {
             @Override
-            public void onChanged(@Nullable ChatSession chatSession) {
-                if(chatSession==null){
-                    Log.d(TAG, "onChanged: ChatSession doesn't exists on chatId: "+chatId);
-                    //here, you should check if there is an entry in the Contact table or not.
-                    //that is not done. I have just temporarily made this.
-                    chatNameView.setText(chatId);
+            public void onChanged(@Nullable Contact contact) {
+                if(contact==null){
+                    Log.d(TAG, "onChanged: contact doesn't exists. So, trying to get info from ChatSession table");
+                    contactExists =false;
                     return;
                 }
-                Log.d(TAG, "onChanged: ChatSession info exists. I'm using that to set the toolbar info");
-                chatNameView.setText(chatSession.getName());
+                contactExists=true;
+                Log.d(TAG, "onChanged: contact exists! Setting info on toolbar from Contact table");
+                chatNameView.setText(contact.getName());
                 Glide.with(ChatActivity.this)
                         .asBitmap()
-                        .load(chatSession.getIcon())
+                        .load(contact.getProfilePic())
                         .into(toolbarProfileImageView);
-                //You should also add an "Online" status to the ChatSession and use it here. Using LiveData here is useful to
-                //dynamically update
             }
         });
+
+        //the below code is temporary to some extent.
+        //if the contact doesn't exists, then it is probably a group chat or it is a chat with an unsaved contact.
+        //so we'll try to check if the contact exists or not. If it doesn't then we'll get the data from ChatSession
+        //and then use it to set the Toolbar info.
+        chatActivityViewModel.getChatSession(chatId).observe(this, new Observer<ChatSession>() {
+            @Override
+            public void onChanged(@Nullable ChatSession chatSession) {
+                if (!contactExists) {
+                    if (chatSession == null) {
+                        //if contact doesn't exists and chatSession is null
+                        Log.d(TAG, "onChanged: ChatSession doesn't exists on chatId: " + chatId);
+                        chatNameView.setText(chatId);
+                        chatSessionExists =false;
+                        return;
+                    }
+                    chatSessionExists =true;
+                    Log.d(TAG, "onChanged: ChatSession info exists. I'm using that to set the toolbar info");
+                    chatNameView.setText(chatSession.getName());
+                    Glide.with(ChatActivity.this)
+                            .asBitmap()
+                            .load(chatSession.getIcon())
+                            .into(toolbarProfileImageView);
+                    //You should also add an "Online" status to the ChatSession and use it here. Using LiveData here is useful to
+                    //dynamically update
+                }
+            }
+        });
+
+        chatActivityViewModel.getChatMessages(chatId).observe(this, new Observer<List<ChatMessage>>() {
+            @Override
+            public void onChanged(@Nullable List<ChatMessage> chatMessages) {
+                chatMessagesAdapter.setChatMessages(chatMessages);
+
+                ///////the below code is temporary.
+                /////////////////////////////////
+                ///////////////////////////////////
+                if (chatMessages != null) {
+                    if(chatMessages.size() == 1 && (!chatSessionExists)) {
+                        //if the user is posting the first message and chatSession doesn't exists, then create a session
+                        PeerLinkDatabase.getInstance(ChatActivity.this).sessionStoreDao().insert(new PeerLinkSession(chatId, 1, null));
+                        PeerLinkDatabase.getInstance(ChatActivity.this).chatSessionDao().insert(new ChatSession(chatId, chatNameView.getText().toString(), ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"));
+                    }
+                    for(ChatMessage message:chatMessages){
+                        Log.d(TAG, "onChanged: Queueing the message :"+message.getMessageContent());
+                        //enqueueMessageToSend(message);
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void enqueueMessageToSend(ChatMessage chatMessage){
+
+        PeerLinkPreferences preferences=new PeerLinkPreferences(this);
+
+        Data data = new Data.Builder()
+                //.putString(PeerLinkSender.SENDER_ADDR, chatId) //replace the below line with this one
+                .putString(PeerLinkSender.SENDER_ADDR, preferences.getMyOnionAddress()) //this is temporary.
+                .putString(PeerLinkSender.MSG_TO_SEND, new Gson().toJson(chatMessage))
+                .build();
+
+        final OneTimeWorkRequest workRequest =
+                new OneTimeWorkRequest.Builder(PeerLinkSender.class)
+                        .setInputData(data)
+                        .build();
+
+        WorkManager.getInstance().enqueue(workRequest);
+        Log.d(TAG, "enqueueMessageToSend: Message queued");
     }
 
 

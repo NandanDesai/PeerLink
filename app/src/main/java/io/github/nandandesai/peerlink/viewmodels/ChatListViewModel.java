@@ -39,12 +39,8 @@ public class ChatListViewModel extends AndroidViewModel {
         return chatListRepository.getRecentMsg(chatId);
     }
 
-    public LiveData<String> getIcon(String chatId){
-        return chatListRepository.getIcon(chatId);
-    }
-
-    public LiveData<String> getName(String chatId){
-        return chatListRepository.getName(chatId);
+    public LiveData<ChatSession> getChatSession(String chatId){
+        return chatListRepository.getChatSession(chatId);
     }
 
     public LiveData<List<String>> getAllChatIds(){

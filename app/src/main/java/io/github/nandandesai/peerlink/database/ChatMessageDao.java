@@ -4,7 +4,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -20,9 +19,22 @@ public interface ChatMessageDao {
     LiveData<List<ChatMessage>> getAllChatMessages(String chatId);
 
     @Query("SELECT * FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
-    LiveData<ChatMessage> getAllUnreadMsgs(String chatId);
+    LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId);
 
-    @Query("UPDATE ChatMessage SET messageStatus='"+ChatMessage.STATUS.USER_READ+"' WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
-    void updateUnreadMessagesToRead(String chatId);
+    @Query("SELECT * FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.WAITING_TO_SEND+"'")
+    LiveData<List<ChatMessage>> getAllUnsentMsgs();
 
+    @Query("UPDATE ChatMessage SET messageStatus=:status WHERE messageId=:messageId")
+    void updateMessageStatusWithMessageId(int messageId, String status);
+
+    //fromStatus and toStatus means you can change the status in the database from a particular value to another value
+    //like updating from a USER_NOT_READ to USER_READ
+    @Query("UPDATE ChatMessage SET messageStatus=:toStatus WHERE messageStatus=:fromStatus AND chatId=:chatId")
+    void updateMessageStatusWithChatId(String chatId, String fromStatus, String toStatus);
+
+    @Query("SELECT Count(*) FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
+    LiveData<Integer> getNumberOfUnreadMsgs(String chatId);
+
+    @Query("SELECT messageContent FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage)")
+    LiveData<String> getRecentMsg(String chatId);
 }

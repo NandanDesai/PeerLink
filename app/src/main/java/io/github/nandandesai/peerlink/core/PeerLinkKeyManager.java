@@ -1,6 +1,7 @@
 package io.github.nandandesai.peerlink.core;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
@@ -18,16 +19,19 @@ import org.whispersystems.libsignal.util.KeyHelper;
 import java.io.IOException;
 
 import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
+import io.github.nandandesai.peerlink.utils.SetupHelper;
 
 
 public class PeerLinkKeyManager {
-
+    private static final String TAG = "PeerLinkKeyManager";
     private SignalProtocolStore store;
     private static final int myDeviceId=1;
     private PeerLinkPreferences preferences;
+    private SetupHelper setupHelper;
     public PeerLinkKeyManager(Context context, SignalProtocolStore store) {
         this.store = store;
         this.preferences=new PeerLinkPreferences(context);
+        setupHelper=new SetupHelper(context);
     }
 
     private IdentityKeyPair generateMyIdentityKeys(){
@@ -54,24 +58,35 @@ public class PeerLinkKeyManager {
     }
 
     public void firstTimeInitialization() throws InvalidKeyException {
-        //generate Identity Keys and Registration Id
-        IdentityKeyPair identityKeyPair=generateMyIdentityKeys();
-        preferences.storeMyIdentityKeyPair(identityKeyPair);
+        IdentityKeyPair identityKeyPair=null;
+        if(!setupHelper.identityKeyDone()) {
+            //generate Identity Keys and Registration Id
+            identityKeyPair = generateMyIdentityKeys();
+            preferences.storeMyIdentityKeyPair(identityKeyPair);
+            Log.d(TAG, "firstTimeInitialization: Identity Key pair generated and stored.");
+        }
 
-        int registrationId=generateMyRegistrationId();
-        preferences.storeMyRegistrationId(registrationId);
+        if(!setupHelper.registrationIdDone()) {
+            int registrationId = generateMyRegistrationId();
+            preferences.storeMyRegistrationId(registrationId);
+            Log.d(TAG, "firstTimeInitialization: registration id has been generated and stored");
+        }
 
-        //One-Time PreKey
-        int preKeyId=preferences.getCurrentPreKeyId();
-        ECKeyPair keyPair=generateMyOneTimePreKey();
-        PreKeyRecord preKeyRecord=new PreKeyRecord(preKeyId, keyPair);
-        store.storePreKey(preKeyId, preKeyRecord);
 
-        //SignedPreKey
-        int signedPreKeyId=preferences.getCurrentSignedPreKeyId();
-        SignedPreKeyRecord signedPreKeyRecord=generateMySignedPreKey(signedPreKeyId, identityKeyPair);
-        store.storeSignedPreKey(signedPreKeyId, signedPreKeyRecord);
+        if(identityKeyPair!=null) {
+            //One-Time PreKey
+            int preKeyId = preferences.getCurrentPreKeyId();
+            ECKeyPair keyPair = generateMyOneTimePreKey();
+            PreKeyRecord preKeyRecord = new PreKeyRecord(preKeyId, keyPair);
+            store.storePreKey(preKeyId, preKeyRecord);
+            Log.d(TAG, "firstTimeInitialization: PreKey is generated and stored");
 
+            //SignedPreKey
+            int signedPreKeyId = preferences.getCurrentSignedPreKeyId();
+            SignedPreKeyRecord signedPreKeyRecord = generateMySignedPreKey(signedPreKeyId, identityKeyPair);
+            store.storeSignedPreKey(signedPreKeyId, signedPreKeyRecord);
+            Log.d(TAG, "firstTimeInitialization: Signed Prekey is generated and stored");
+        }
         /*
             As far as I understand,
 

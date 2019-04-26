@@ -88,11 +88,13 @@ public class PeerLinkPreferences {
     }
 
     public boolean isFirstTimeUse(){
-        boolean result=sharedPreferences.getBoolean(FIRST_TIME_USE, false);
+        return sharedPreferences.getBoolean(FIRST_TIME_USE, false);
+    }
+
+    public void setFirstTimeUse(boolean result){
         editor=sharedPreferences.edit();
-        editor.putBoolean(FIRST_TIME_USE, true);
+        editor.putBoolean(FIRST_TIME_USE, result);
         editor.apply();
-        return result;
     }
 
     //returns null if not exists

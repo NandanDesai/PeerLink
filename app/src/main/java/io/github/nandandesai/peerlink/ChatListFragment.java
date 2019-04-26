@@ -71,20 +71,20 @@ public class ChatListFragment extends Fragment {
                 Log.d(TAG, "onChanged: called");
 
                 try {
-                    LiveData<String> chatTitle;
-                    LiveData<String> chatProfilePic;
+                    LiveData<ChatSession> chatSession;
                     LiveData<String> recentMsg;
                     LiveData<Integer> noOfUnreadMsgs;
-                    for (String chatId : chatIds) {
-                        Log.d(TAG, "onChanged: for loop chatId: "+chatId);
-                        chatTitle=chatListViewModel.getName(chatId);
-                        chatProfilePic=chatListViewModel.getIcon(chatId);
-                        recentMsg=chatListViewModel.getRecentMsg(chatId);
-                        noOfUnreadMsgs=chatListViewModel.getNumberOfUnreadMsgs(chatId);
-                        ChatListAdapter.DataHolder dataHolder = new ChatListAdapter.DataHolder(chatId, chatTitle, chatProfilePic, recentMsg, noOfUnreadMsgs);
-                        chatDataHolders.add(dataHolder);
-                        chatListAdapter.setDataHolders(chatDataHolders);
+                    if (chatIds != null) {
+                        for (String chatId : chatIds) {
+                            Log.d(TAG, "onChanged: for loop chatId: "+chatId);
+                            chatSession=chatListViewModel.getChatSession(chatId);
+                            recentMsg=chatListViewModel.getRecentMsg(chatId);
+                            noOfUnreadMsgs=chatListViewModel.getNumberOfUnreadMsgs(chatId);
+                            ChatListAdapter.DataHolder dataHolder = new ChatListAdapter.DataHolder(chatSession, recentMsg, noOfUnreadMsgs);
+                            chatDataHolders.add(dataHolder);
+                        }
                     }
+                    chatListAdapter.setDataHolders(chatDataHolders);
                 }catch (NullPointerException npe){
                     Log.d(TAG, "onChanged: Null Pointer: "+npe.getMessage());
                 }
