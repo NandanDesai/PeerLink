@@ -67,7 +67,7 @@ public class ChatActivity extends AppCompatActivity {
         preferences=new PeerLinkPreferences(this);
 
         chatId=getIntent().getStringExtra("chatId");
-
+        Log.d(TAG, "onCreate: Opened ChatActivity with chatId: "+chatId);
         chatMessagesAdapter=new ChatMessagesAdapter(this);
         chatMessagesListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatMessagesListView.setAdapter(chatMessagesAdapter);
@@ -86,11 +86,6 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        //call the below method to get a list of messages that are not read
-        //and then send a Read Receipt reply to the sender
-        //chatActivityViewModel.getAllUnreadMsgs()
-        //after that, mark those messages as read in your own database by calling the below method
-        chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,7 +103,10 @@ public class ChatActivity extends AppCompatActivity {
                 if(!messageContent.equals("")){
                     Log.d(TAG, "onClick: "+messageInput.getText());
                     String messageFrom=preferences.getMyOnionAddress();
-                    String messageTo=chatId;
+                    //String messageTo=chatId;
+                    //sending the message to myself for testing
+                    String messageTo=preferences.getMyOnionAddress();
+
                     String messageStatus=ChatMessage.STATUS.WAITING_TO_SEND;
                     long messageTime=System.currentTimeMillis();
                     String messageType=ChatMessage.TYPE.TEXT;
@@ -205,13 +203,15 @@ public class ChatActivity extends AppCompatActivity {
                 if (chatMessages != null) {
                     if(chatMessages.size() == 1 && (!chatSessionExists)) {
                         //if the user is posting the first message and chatSession doesn't exists, then create a session
+                        Log.d(TAG, "onChanged: First message posted and chat session doesn't exists. So, creating a new chat session");
                         PeerLinkDatabase.getInstance(ChatActivity.this).sessionStoreDao().insert(new PeerLinkSession(chatId, 1, null));
                         PeerLinkDatabase.getInstance(ChatActivity.this).chatSessionDao().insert(new ChatSession(chatId, chatNameView.getText().toString(), ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"));
                     }
-                    for(ChatMessage message:chatMessages){
-                        Log.d(TAG, "onChanged: Queueing the message :"+message.getMessageContent());
-                        //enqueueMessageToSend(message);
-                    }
+
+                    //here, I'm updating all the not_read messages to read. But, in actual case
+                    //I need to send a response to the sender that I have read the message.
+                    //figure out what you need to do in such case later.
+                    chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
                 }
             }
         });

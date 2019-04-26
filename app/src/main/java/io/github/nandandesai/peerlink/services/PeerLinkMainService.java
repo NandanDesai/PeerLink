@@ -1,28 +1,46 @@
 package io.github.nandandesai.peerlink.services;
 
 import android.app.Service;
+import android.arch.lifecycle.LifecycleService;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import androidx.work.ListenableWorker;
 import io.github.nandandesai.peerlink.core.PeerLinkReceiver;
+import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
-public class PeerLinkMainService extends Service {
+public class PeerLinkMainService extends LifecycleService {
     private static final String TAG = "PeerLinkMainService";
 
     private ExecutorService executorService;
     private PeerLinkReceiver peerLinkReceiver;
-
-    public PeerLinkMainService() {
-    }
+    private ChatMessageRepository chatMessageRepository;
+    private Observer<List<ChatMessage>> chatMessagesObserver;
+    public PeerLinkMainService() {}
 
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -36,14 +54,48 @@ public class PeerLinkMainService extends Service {
             public void run() {
                 try {
                     Log.d(TAG, "run: ABOUT TO START THE SERVER");
-                    peerLinkReceiver = new PeerLinkReceiver(getApplicationContext(),9000);
+                    peerLinkReceiver = new PeerLinkReceiver(getApplication(),9000);
                 }catch (IOException io){
                     io.printStackTrace();
                 }
             }
         });
 
-
+        chatMessageRepository=new ChatMessageRepository(getApplication());
+        chatMessagesObserver=new Observer<List<ChatMessage>>() {
+            @Override
+            public void onChanged(@Nullable List<ChatMessage> chatMessages) {
+                if(chatMessages!=null){
+                    for(ChatMessage chatMessage:chatMessages) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.d(TAG, "run: received a new WAITING_TO_SEND message. Trying to send it now to: "+chatMessage.getMessageTo());
+                                int retry=0;
+                                while (true){
+                                    if(retry==5){
+                                        Log.d(TAG, "run: Tried 5 times to send the message but failed. Giving up now :(");
+                                        break;
+                                    }
+                                    else if(!messageSender(chatMessage)){
+                                        try {
+                                            Thread.sleep(3000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else{
+                                        chatMessageRepository.updateMessageStatusWithMessageId(chatMessage.getMessageId(), ChatMessage.STATUS.DELIVERED_TO_RECIPIENT);
+                                        break;
+                                    }
+                                    retry++;
+                                }
+                            }
+                        }).start();
+                    }
+                }
+            }
+        };
+        chatMessageRepository.getAllUnsentMsgs().observe(this, chatMessagesObserver);
 
 
         return START_STICKY;
@@ -65,5 +117,39 @@ public class PeerLinkMainService extends Service {
 
     }
 
+    private boolean messageSender(ChatMessage chatMessage){
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", 9050)))
+                .build();
+
+
+        /*
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("content", new Gson().toJson(chatMessage))
+                .build();
+
+        Request request = builder.build();
+        */
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, new Gson().toJson(chatMessage));
+        Request request = new Request.Builder()
+                .url("http://"+chatMessage.getMessageTo()+":9000")
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            Log.d(TAG, "messageSender: response :"+response.body().string());
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 }

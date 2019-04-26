@@ -62,6 +62,10 @@ public class ChatMessage {
         this.messageId = messageId;
     }
 
+    public void setMessageStatus(String messageStatus) {
+        this.messageStatus = messageStatus;
+    }
+
     public int getMessageId() {
         return messageId;
     }
