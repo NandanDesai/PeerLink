@@ -42,15 +42,14 @@ public class PeerLinkReceiver extends NanoHTTPD {
         displayNotification("PeerLink", "New request received from Tor.");
         String msg = "{\"status\":\"success\", \"message\":\"Successfully received the message.\"}";
         try {
-            HashMap<String, String> map = new HashMap<String, String>();
+            HashMap<String,String> map = new HashMap<>();
             session.parseBody(map);
             Log.d(TAG, "serve: content received: "+map.toString());
             ChatMessage chatMessage=new Gson().fromJson(map.get("postData"),ChatMessage.class);
 
             //temporary code below////////
-            chatMessage.setMessageId(chatMessage.getMessageId()+1);
+            chatMessage.setMessageId(chatMessage.getMessageId()+"1");
             ///////////////////////////////
-
 
             chatMessage.setMessageStatus(ChatMessage.STATUS.USER_NOT_READ);
             chatMessageRepository.insert(chatMessage);
@@ -62,6 +61,9 @@ public class PeerLinkReceiver extends NanoHTTPD {
         } catch (NullPointerException e){
             e.printStackTrace();
         }
+
+
+
         return newFixedLengthResponse(Response.Status.OK, "application/json", msg);
     }
 

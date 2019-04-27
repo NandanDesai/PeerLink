@@ -3,6 +3,7 @@ package io.github.nandandesai.peerlink.models;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
 
@@ -32,7 +33,7 @@ public class ChatMessage {
         public static final String MULTIMEDIA="multimedia";
     }
 
-    @PrimaryKey(autoGenerate = true) private int messageId;
+    @PrimaryKey @NonNull private String messageId;
     private String messageContent;
 
     /*
@@ -48,7 +49,8 @@ public class ChatMessage {
     private String messageType;
     private String chatId;
 
-    public ChatMessage(String messageContent, String messageFrom, String messageTo, String messageStatus, long messageTime, String messageType, String chatId) {
+    public ChatMessage(String messageId, String messageContent, String messageFrom, String messageTo, String messageStatus, long messageTime, String messageType, String chatId) {
+        this.messageId=messageId;
         this.messageContent = messageContent;
         this.messageFrom = messageFrom;
         this.messageTo = messageTo;
@@ -58,7 +60,7 @@ public class ChatMessage {
         this.chatId = chatId;
     }
 
-    public void setMessageId(int messageId) {
+    public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
 
@@ -66,7 +68,7 @@ public class ChatMessage {
         this.messageStatus = messageStatus;
     }
 
-    public int getMessageId() {
+    public String getMessageId() {
         return messageId;
     }
 

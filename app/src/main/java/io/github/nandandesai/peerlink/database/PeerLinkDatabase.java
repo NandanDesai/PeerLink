@@ -69,6 +69,7 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
 
         @Override
         protected Void doInBackground(Void... voids) {
+            /*
             Contact contact = new Contact("1", "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80", "Me","Hey there! I'm using PeerLink.");
             contactDao.insert(contact);
 
@@ -83,7 +84,7 @@ public abstract class PeerLinkDatabase extends RoomDatabase {
             chatSessionDao.insert(chatSession);
 
             Log.d(TAG, "doInBackground: Sample ChatSession inserted");
-
+            */
             return null;
         }
     }

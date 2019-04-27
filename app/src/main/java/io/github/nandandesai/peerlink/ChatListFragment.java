@@ -55,7 +55,7 @@ public class ChatListFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                TESTupdateChatItem();
+                //do something here
             }
         });
 
@@ -94,18 +94,6 @@ public class ChatListFragment extends Fragment {
 
 
         return view;
-    }
-
-    private void TESTupdateChatItem(){
-        String messageFrom="abcd123";
-        String messageTo="1";
-        String messageStatus= ChatMessage.STATUS.USER_NOT_READ;
-        long messageTime=System.currentTimeMillis();
-        String messageType=ChatMessage.TYPE.TEXT;
-        String chatId="abcd123";
-        String messageContent="Hi this is abcd123. How are you?";
-        ChatMessage chatMessage=new ChatMessage(messageContent,messageFrom,messageTo,messageStatus,messageTime, messageType,chatId);
-        chatListViewModel.getTESTchatMessageRepository().insert(chatMessage);
     }
 
 /*

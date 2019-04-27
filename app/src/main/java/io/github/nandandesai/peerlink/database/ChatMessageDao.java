@@ -25,7 +25,7 @@ public interface ChatMessageDao {
     LiveData<List<ChatMessage>> getAllUnsentMsgs();
 
     @Query("UPDATE ChatMessage SET messageStatus=:status WHERE messageId=:messageId")
-    void updateMessageStatusWithMessageId(int messageId, String status);
+    void updateMessageStatusWithMessageId(String messageId, String status);
 
     //fromStatus and toStatus means you can change the status in the database from a particular value to another value
     //like updating from a USER_NOT_READ to USER_READ

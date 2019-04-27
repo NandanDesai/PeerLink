@@ -19,6 +19,9 @@ public interface ChatSessionDao {
     @Query("SELECT * FROM ChatSession WHERE chatId=:chatId")
     LiveData<ChatSession> getChatSession(String chatId);
 
+    @Query("SELECT COUNT(*) FROM ChatSession WHERE chatId=:chatId")
+    int chatSessionExists(String chatId); //1 for true, 0 for false
+
     @Query("DELETE FROM ChatSession WHERE chatId=:chatId")
     void delete(String chatId);
 
