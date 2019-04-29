@@ -103,7 +103,7 @@ public class PeerLinkReceiver extends NanoHTTPD {
                 .setContentText(task)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setDefaults(Notification.DEFAULT_ALL)
-                .setSmallIcon(R.drawable.ic_launcher_foreground);
+                .setSmallIcon(R.drawable.ic_stat_notification);
 
 
         notificationManager.notify(1, notification.build());
