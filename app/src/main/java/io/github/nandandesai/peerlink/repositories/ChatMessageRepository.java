@@ -35,7 +35,7 @@ public class ChatMessageRepository {
                     Log.d(TAG, "run: Chat session didn't exist previously. So, creating a new one before inserting the message.");
                     String contactName=peerLinkDatabase.contactDao().getContactName(chatMessage.getChatId());
                     String chatName;
-                    if(contactName!=null || !contactName.isEmpty()){
+                    if(contactName!=null){
                         chatName=contactName;
                     }else{
                         chatName=chatMessage.getChatId();
