@@ -98,8 +98,6 @@ public class PeerLinkMainService extends LifecycleService {
             }
         };
         chatMessageRepository.getAllUnsentMsgs().observe(this, chatMessagesObserver);
-
-
         return START_STICKY;
     }
 
@@ -126,24 +124,12 @@ public class PeerLinkMainService extends LifecycleService {
                 .readTimeout(20, TimeUnit.SECONDS)
                 .proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", 9050)))
                 .build();
-
-
-        /*
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("content", new Gson().toJson(chatMessage))
-                .build();
-
-        Request request = builder.build();
-        */
-
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, new Gson().toJson(chatMessage));
         Request request = new Request.Builder()
                 .url("http://"+chatMessage.getMessageTo()+":9000")
                 .post(body)
                 .build();
-
         try {
             Response response = client.newCall(request).execute();
             Log.d(TAG, "messageSender: response :"+response.body().string());
