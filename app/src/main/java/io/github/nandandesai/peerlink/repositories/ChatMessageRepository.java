@@ -28,7 +28,11 @@ public class ChatMessageRepository {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                PeerLinkPreferences preferences=new PeerLinkPreferences(application.getApplicationContext());
                 //if chat session exists
+                if(!chatMessage.getMessageFrom().equalsIgnoreCase(preferences.getMyOnionAddress())) {
+                    chatMessage.setChatId(chatMessage.getMessageFrom());
+                }
                 if(peerLinkDatabase.chatSessionDao().chatSessionExists(chatMessage.getChatId())==1) {
                     chatMessageDao.insert(chatMessage);
                 }else{
@@ -38,8 +42,7 @@ public class ChatMessageRepository {
                     //for time being, I'm just going to create some temporary rows for it.
                     Log.d(TAG, "run: Chat session didn't exist previously. So, creating a new one before inserting the message.");
 
-                    PeerLinkPreferences preferences=new PeerLinkPreferences(application.getApplicationContext());
-                    if(chatMessage.getMessageFrom()==preferences.getMyOnionAddress()) {
+
                         String contactName=peerLinkDatabase.contactDao().getContactName(chatMessage.getChatId());
                         String chatName;
                         if(contactName!=null){
@@ -49,19 +52,7 @@ public class ChatMessageRepository {
                         }
                         peerLinkDatabase.sessionStoreDao().insert(new PeerLinkSession(chatMessage.getChatId(), 1, null));
                         peerLinkDatabase.chatSessionDao().insert(new ChatSession(chatMessage.getChatId(), chatName, ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"));
-                    }else{
-                        String contactName=peerLinkDatabase.contactDao().getContactName(chatMessage.getMessageFrom());
-                        String chatName;
-                        if(contactName!=null){
-                            chatName=contactName;
-                        }else{
-                            chatName=chatMessage.getMessageFrom();
-                        }
-                        chatMessage.setChatId(chatMessage.getMessageFrom());
-                        peerLinkDatabase.sessionStoreDao().insert(new PeerLinkSession(chatMessage.getMessageFrom(), 1, null));
-                        peerLinkDatabase.chatSessionDao().insert(new ChatSession(chatMessage.getMessageFrom(), chatName, ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"));
-
-                    }
+                    
                     chatMessageDao.insert(chatMessage);
                 }
             }
