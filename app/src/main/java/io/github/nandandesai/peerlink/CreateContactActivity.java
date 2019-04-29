@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import io.github.nandandesai.peerlink.models.Contact;
 import io.github.nandandesai.peerlink.repositories.ContactRepository;
@@ -38,6 +39,8 @@ public class CreateContactActivity extends AppCompatActivity {
                 }
                 Contact contact=new Contact(id, "", name, "");
                 contactRepository.insert(contact);
+                Toast.makeText(CreateContactActivity.this, "Contact saved.", Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
     }
