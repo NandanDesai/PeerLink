@@ -60,6 +60,10 @@ public class ChatMessage {
         this.chatId = chatId;
     }
 
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
+    }
+
     public void setMessageId(String messageId) {
         this.messageId = messageId;
     }

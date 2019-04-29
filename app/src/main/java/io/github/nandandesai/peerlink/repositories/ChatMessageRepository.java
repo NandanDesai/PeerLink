@@ -57,8 +57,10 @@ public class ChatMessageRepository {
                         }else{
                             chatName=chatMessage.getMessageFrom();
                         }
+                        chatMessage.setChatId(chatMessage.getMessageFrom());
                         peerLinkDatabase.sessionStoreDao().insert(new PeerLinkSession(chatMessage.getMessageFrom(), 1, null));
                         peerLinkDatabase.chatSessionDao().insert(new ChatSession(chatMessage.getMessageFrom(), chatName, ChatSession.TYPE.DIRECT, "https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"));
+
                     }
                     chatMessageDao.insert(chatMessage);
                 }
