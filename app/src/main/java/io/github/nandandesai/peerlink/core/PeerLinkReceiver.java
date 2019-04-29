@@ -39,16 +39,19 @@ public class PeerLinkReceiver extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
-        displayNotification("PeerLink", "New request received from Tor.");
+
         String msg = "{\"status\":\"success\", \"message\":\"Successfully received the message.\"}";
         try {
             HashMap<String,String> map = new HashMap<>();
             session.parseBody(map);
             Log.d(TAG, "serve: content received: "+map.toString());
             ChatMessage chatMessage=new Gson().fromJson(map.get("postData"),ChatMessage.class);
+            //send the notification
+            displayNotification(chatMessage.getChatId(), chatMessage.getMessageContent());
+
 
             //temporary code below////////
-            chatMessage.setMessageId(chatMessage.getMessageId()+"1");
+            chatMessage.setMessageId(chatMessage.getMessageId()+"RECEIVED");
             ///////////////////////////////
 
             chatMessage.setMessageStatus(ChatMessage.STATUS.USER_NOT_READ);

@@ -170,6 +170,8 @@ public class ChatActivity extends AppCompatActivity {
                 if (!contactExists) {
                     if (chatSession == null) {
                         //if contact doesn't exists and chatSession is null
+                        //I think this case won't happen.
+                        //maybe in the future when all the Signal stuff is done, it will happen. But not now.
                         Log.d(TAG, "onChanged: ChatSession doesn't exists on chatId: " + chatId);
                         chatNameView.setText(chatId);
                         return;

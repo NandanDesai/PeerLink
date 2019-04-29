@@ -70,20 +70,22 @@ public class PeerLinkMainService extends LifecycleService {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                Log.d(TAG, "run: received a new WAITING_TO_SEND message. Trying to send it now to: "+chatMessage.getMessageTo());
+                                Log.d(TAG, "run: received a new WAITING_TO_SEND message. Trying to send it now to: "+chatMessage.getMessageTo()+" and the message Id is: "+chatMessage.getMessageId());
                                 int retry=0;
                                 while (true){
                                     if(retry==5){
                                         Log.d(TAG, "run: Tried 5 times to send the message but failed. Giving up now :(");
                                         break;
                                     }
-                                    else if(!messageSender(chatMessage)){
+                                    if(!messageSender(chatMessage)){
+                                        Log.d(TAG, "run: failed sending the message with retry="+retry);
                                         try {
                                             Thread.sleep(3000);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
                                     }else{
+                                        Log.d(TAG, "run: delivered. Changing the message status to DELIVERED_TO_RECIPIENT and breaking the loop.");
                                         chatMessageRepository.updateMessageStatusWithMessageId(chatMessage.getMessageId(), ChatMessage.STATUS.DELIVERED_TO_RECIPIENT);
                                         break;
                                     }
@@ -119,9 +121,9 @@ public class PeerLinkMainService extends LifecycleService {
 
     private boolean messageSender(ChatMessage chatMessage){
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
                 .proxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("127.0.0.1", 9050)))
                 .build();
 

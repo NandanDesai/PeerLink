@@ -71,6 +71,7 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
 
     // using WorkManager to send messages
+    //I think it is of no use
     implementation "android.arch.work:work-runtime:1.0.1"
 
 }
