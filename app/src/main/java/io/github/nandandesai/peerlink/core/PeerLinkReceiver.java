@@ -14,6 +14,7 @@ import fi.iki.elonen.NanoHTTPD;
 import io.github.nandandesai.peerlink.R;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
+import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,6 +47,10 @@ public class PeerLinkReceiver extends NanoHTTPD {
             session.parseBody(map);
             Log.d(TAG, "serve: content received: "+map.toString());
             ChatMessage chatMessage=new Gson().fromJson(map.get("postData"),ChatMessage.class);
+            PeerLinkPreferences preferences=new PeerLinkPreferences(context);
+            if(!chatMessage.getMessageFrom().equalsIgnoreCase(preferences.getMyOnionAddress())) {
+                chatMessage.setChatId(chatMessage.getMessageFrom());
+            }
             //send the notification
             displayNotification(chatMessage.getChatId(), chatMessage.getMessageContent());
 
