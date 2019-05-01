@@ -35,6 +35,6 @@ public interface ChatMessageDao {
     @Query("SELECT Count(*) FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
     LiveData<Integer> getNumberOfUnreadMsgs(String chatId);
 
-    @Query("SELECT messageContent FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage)")
+    @Query("SELECT messageContent FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage WHERE chatId=:chatId)")
     LiveData<String> getRecentMsg(String chatId);
 }

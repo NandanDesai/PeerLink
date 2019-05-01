@@ -12,9 +12,9 @@ import io.github.nandandesai.peerlink.models.Contact;
 public class ContactRepository {
     private ContactDao contactDao;
     private LiveData<List<Contact>> contacts;
-
+    private PeerLinkDatabase peerLinkDatabase;
     public ContactRepository(Application application){
-        PeerLinkDatabase peerLinkDatabase=PeerLinkDatabase.getInstance(application);
+        peerLinkDatabase=PeerLinkDatabase.getInstance(application);
         contactDao=peerLinkDatabase.contactDao();
         contacts=contactDao.getAllContacts();
     }
@@ -24,6 +24,9 @@ public class ContactRepository {
             @Override
             public void run() {
                 contactDao.insert(contact);
+                if(peerLinkDatabase.chatSessionDao().chatSessionExists(contact.getId())==1){
+                    peerLinkDatabase.chatSessionDao().updateChatName(contact.getId(), contact.getName());
+                }
             }
         }).start();
     }

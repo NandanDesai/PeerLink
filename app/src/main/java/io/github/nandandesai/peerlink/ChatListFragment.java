@@ -68,13 +68,14 @@ public class ChatListFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<String> chatIds) {
 
-                Log.d(TAG, "onChanged: called");
+                Log.d(TAG, "onChanged: CHAT IDS are: "+chatIds.toString());
 
                 try {
                     LiveData<ChatSession> chatSession;
                     LiveData<String> recentMsg;
                     LiveData<Integer> noOfUnreadMsgs;
                     if (chatIds != null) {
+                        chatDataHolders.clear();
                         for (String chatId : chatIds) {
                             Log.d(TAG, "onChanged: for loop chatId: "+chatId);
                             chatSession=chatListViewModel.getChatSession(chatId);

@@ -27,4 +27,7 @@ public interface ChatSessionDao {
 
     @Query("SELECT chatId FROM ChatSession")
     LiveData<List<String>> getAllChatIds();
+
+    @Query("UPDATE ChatSession SET name=:chatName WHERE chatId=:chatId")
+    void updateChatName(String chatId, String chatName);
 }
