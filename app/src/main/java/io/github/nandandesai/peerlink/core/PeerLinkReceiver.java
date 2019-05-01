@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 
 import fi.iki.elonen.NanoHTTPD;
 import io.github.nandandesai.peerlink.R;
+import io.github.nandandesai.peerlink.database.PeerLinkDatabase;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
 import io.github.nandandesai.peerlink.utils.PeerLinkPreferences;
@@ -51,8 +52,18 @@ public class PeerLinkReceiver extends NanoHTTPD {
             if(!chatMessage.getMessageFrom().equalsIgnoreCase(preferences.getMyOnionAddress())) {
                 chatMessage.setChatId(chatMessage.getMessageFrom());
             }
+
+            PeerLinkDatabase peerLinkDatabase=PeerLinkDatabase.getInstance(context);
+            String contactName = peerLinkDatabase.contactDao().getContactName(chatMessage.getChatId());
+            String chatName;
+            if (contactName != null) {
+                chatName = contactName;
+            } else {
+                chatName = chatMessage.getChatId();
+            }
+
             //send the notification
-            displayNotification(chatMessage.getChatId(), chatMessage.getMessageContent());
+            displayNotification(chatName, chatMessage.getMessageContent());
 
 
             //temporary code below////////
@@ -90,7 +101,6 @@ public class PeerLinkReceiver extends NanoHTTPD {
 
 
     private void displayNotification(String title, String task) {
-
 
         //properly construct this method to be compatible with all the versions of Android and clean up this method
         //and place it where it should be used.

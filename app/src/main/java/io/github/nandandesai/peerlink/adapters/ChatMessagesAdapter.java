@@ -10,8 +10,12 @@ import android.widget.TextView;
 
 import com.vanniktech.emoji.EmojiTextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import io.github.nandandesai.peerlink.R;
 import io.github.nandandesai.peerlink.models.ChatMessage;
@@ -69,8 +73,9 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
 
             incomingMessageViewHolder.messageTextView.setText(chatMessage.getMessageContent());
-            incomingMessageViewHolder.messageAuthorView.setText(chatMessage.getMessageFrom());
-            incomingMessageViewHolder.messageTimeView.setText(chatMessage.getMessageTime()+"");
+            //incomingMessageViewHolder.messageAuthorView.setText(chatMessage.getMessageFrom());
+            incomingMessageViewHolder.messageAuthorView.setText("");/////////////////CHANGE THIS MAYBE?
+            incomingMessageViewHolder.messageTimeView.setText(getFormattedMessageTime(chatMessage.getMessageTime()));
 
         }else {
             if(view!=null && view.getTag() instanceof IncomingMessageViewHolder){
@@ -91,7 +96,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
 
             outgoingMessageViewHolder.messageTextView.setText(chatMessage.getMessageContent());
-            outgoingMessageViewHolder.messageTimeView.setText(chatMessage.getMessageTime()+"");
+            outgoingMessageViewHolder.messageTimeView.setText(getFormattedMessageTime(chatMessage.getMessageTime()));
             //complete this
             //outgoingMessageViewHolder.messageStatusView.setImageDrawable(context.getResources().getDrawable(R.drawable.message_got_receipt_from_target));
         }
@@ -101,6 +106,15 @@ public class ChatMessagesAdapter extends BaseAdapter {
     public void setChatMessages(List<ChatMessage> chatMessages){
         this.chatMessages=chatMessages;
         notifyDataSetChanged();
+    }
+
+    private String getFormattedMessageTime(long unixTime){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(unixTime);
+        Date date = new Date(calendar.getTimeInMillis());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(calendar.getTime());
     }
 
     private class IncomingMessageViewHolder{
