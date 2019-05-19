@@ -1,1 +1,3 @@
-Clean up the ChatSessionDao. A lot of unnecessary methods are written over there.
+Clean up ChatActivity. Look for the TODO comment in that file.
+
+Also, think of using WebSockets. Maybe it may help in speeding up the message sending process.
