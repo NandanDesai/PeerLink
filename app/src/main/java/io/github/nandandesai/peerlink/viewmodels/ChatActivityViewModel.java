@@ -40,8 +40,12 @@ public class ChatActivityViewModel extends AndroidViewModel {
         chatMessageRepository.insert(chatMessage);
     }
 
-    public LiveData<List<ChatMessage>> getChatMessages(String chatId) {
+    public List<ChatMessage> getChatMessages(String chatId) {
         return chatMessageRepository.getChatMessages(chatId);
+    }
+
+    public LiveData<ChatMessage> getRecentChatMessage(String chatId){
+        return chatMessageRepository.getRecentMsg(chatId);
     }
 
     public LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId){

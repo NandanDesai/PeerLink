@@ -108,6 +108,10 @@ public class ChatMessagesAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
     private String getFormattedMessageTime(long unixTime){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(unixTime);

@@ -8,6 +8,7 @@ import java.util.List;
 import io.github.nandandesai.peerlink.database.ChatMessageDao;
 import io.github.nandandesai.peerlink.database.ChatSessionDao;
 import io.github.nandandesai.peerlink.database.PeerLinkDatabase;
+import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
 
 
@@ -32,7 +33,7 @@ public class ChatListRepository {
         return chatMessageDao.getNumberOfUnreadMsgs(chatId);
     }
 
-    public LiveData<String> getRecentMsg(String chatId){
+    public LiveData<ChatMessage> getRecentMsg(String chatId){
         return chatMessageDao.getRecentMsg(chatId);
     }
 

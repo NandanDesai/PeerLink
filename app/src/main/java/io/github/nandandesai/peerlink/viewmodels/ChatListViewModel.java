@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.repositories.ChatListRepository;
 import io.github.nandandesai.peerlink.repositories.ChatMessageRepository;
@@ -35,7 +36,7 @@ public class ChatListViewModel extends AndroidViewModel {
         return chatListRepository.getNumberOfUnreadMsgs(chatId);
     }
 
-    public LiveData<String> getRecentMsg(String chatId){
+    public LiveData<ChatMessage> getRecentMsg(String chatId){
         return chatListRepository.getRecentMsg(chatId);
     }
 

@@ -16,7 +16,7 @@ public interface ChatMessageDao {
     void insert(ChatMessage chatMessage);
 
     @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId ORDER BY messageTime ASC")
-    LiveData<List<ChatMessage>> getAllChatMessages(String chatId);
+    List<ChatMessage> getAllChatMessages(String chatId);
 
     @Query("SELECT * FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
     LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId);
@@ -35,6 +35,6 @@ public interface ChatMessageDao {
     @Query("SELECT Count(*) FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
     LiveData<Integer> getNumberOfUnreadMsgs(String chatId);
 
-    @Query("SELECT messageContent FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage WHERE chatId=:chatId)")
-    LiveData<String> getRecentMsg(String chatId);
+    @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId AND messageTime=(SELECT Max(messageTime) FROM ChatMessage WHERE chatId=:chatId)")
+    LiveData<ChatMessage> getRecentMsg(String chatId);
 }

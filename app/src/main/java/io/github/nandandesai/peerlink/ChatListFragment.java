@@ -72,7 +72,7 @@ public class ChatListFragment extends Fragment {
 
                 try {
                     LiveData<ChatSession> chatSession;
-                    LiveData<String> recentMsg;
+                    LiveData<ChatMessage> recentMsg;
                     LiveData<Integer> noOfUnreadMsgs;
                     if (chatIds != null) {
                         chatDataHolders.clear();

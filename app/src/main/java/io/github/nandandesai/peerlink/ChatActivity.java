@@ -2,6 +2,7 @@ package io.github.nandandesai.peerlink;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -71,12 +72,15 @@ public class ChatActivity extends AppCompatActivity {
 
         chatActivityViewModel = ViewModelProviders.of(this).get(ChatActivityViewModel.class);
 
+        new SetupChatListViewTask(chatActivityViewModel, chatMessagesAdapter, chatId).execute();
+
         //setup toolbar info
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         TextView chatNameView = toolbar.findViewById(R.id.chatToolbarTitle);
         CircleImageView toolbarProfileImageView = findViewById(R.id.chatToolbarIcon);
+
 
 
         setupLiveDataObservers(chatNameView, toolbarProfileImageView);
@@ -141,6 +145,12 @@ public class ChatActivity extends AppCompatActivity {
 
     private void setupLiveDataObservers(TextView chatNameView, CircleImageView toolbarProfileImageView) {
 
+
+        /*
+        * TODO: When I save the contact from CreateContactActivity, then in ContactRepository, even the chatSession table will be updated.
+                So, I should just use whatever name is present in ChatSession table right? Whats the use of the below getContact observer code?
+                I can simplify this.
+        */
         chatActivityViewModel.getContact(chatId).observe(this, new Observer<Contact>() {
             @Override
             public void onChanged(@Nullable Contact contact) {
@@ -189,6 +199,8 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        /*
+
         chatActivityViewModel.getChatMessages(chatId).observe(this, new Observer<List<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable List<ChatMessage> chatMessages) {
@@ -205,7 +217,56 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+        */
 
+        /*
+        * The below code adds the newly entered chatMessage to the list of chatmessages in adapter on by one as opposed
+        * to replacing the entire list of messages as done in the above commented code.
+        * */
+        chatActivityViewModel.getRecentChatMessage(chatId).observe(this, new Observer<ChatMessage>() {
+            @Override
+            public void onChanged(@Nullable ChatMessage chatMessage) {
+                chatMessagesAdapter.getChatMessages().add(chatMessage);
+                chatMessagesAdapter.notifyDataSetChanged();
+                ///////the below code is temporary.
+                /////////////////////////////////
+                ///////////////////////////////////
+                if (chatMessage != null) {
+                    //here, I'm updating all the not_read messages to read. But, in actual case
+                    //I need to send a response to the sender that I have read the message.
+                    //figure out what you need to do in such case later.
+                    chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
+                }
+            }
+        });
+
+    }
+
+    private static class SetupChatListViewTask extends AsyncTask<Void, Void, Void>{
+
+        private ChatActivityViewModel chatActivityViewModel;
+        private ChatMessagesAdapter chatMessagesAdapter;
+        private List<ChatMessage> chatMessages;
+        private String chatId;
+
+        public SetupChatListViewTask(ChatActivityViewModel chatActivityViewModel, ChatMessagesAdapter chatMessagesAdapter, String chatId) {
+            this.chatActivityViewModel = chatActivityViewModel;
+            this.chatMessagesAdapter = chatMessagesAdapter;
+            this.chatId = chatId;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: fetching the list of chatMessages.");
+            chatMessages=chatActivityViewModel.getChatMessages(chatId);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Log.d(TAG, "onPostExecute: setting the chatMessagesAdapter with the fetched list of chatMessages");
+            chatMessagesAdapter.setChatMessages(chatMessages);
+        }
     }
 
     private void enqueueMessageToSend(ChatMessage chatMessage) {

@@ -23,6 +23,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.nandandesai.peerlink.ChatActivity;
 import io.github.nandandesai.peerlink.R;
+import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder>{
@@ -81,10 +82,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         });
 
         //set the recent chat message
-        dataHolders.get(i).recentMsg.observe(lifecycleOwner, new Observer<String>() {
+        dataHolders.get(i).recentMsg.observe(lifecycleOwner, new Observer<ChatMessage>() {
             @Override
-            public void onChanged(@Nullable String s) {
-                viewHolder.recentChatMsgView.setText(s);
+            public void onChanged(@Nullable ChatMessage chatMessage) {
+                viewHolder.recentChatMsgView.setText(chatMessage.getMessageContent());
             }
         });
 
@@ -133,10 +134,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     public static class DataHolder{
         LiveData<ChatSession> chatSession;
-        LiveData<String> recentMsg;
+        LiveData<ChatMessage> recentMsg;
         LiveData<Integer> noOfUnreadMsgs;
 
-        public DataHolder(LiveData<ChatSession> chatSession, LiveData<String> recentMsg, LiveData<Integer> noOfUnreadMsgs) {
+        public DataHolder(LiveData<ChatSession> chatSession, LiveData<ChatMessage> recentMsg, LiveData<Integer> noOfUnreadMsgs) {
             this.chatSession = chatSession;
             this.recentMsg = recentMsg;
             this.noOfUnreadMsgs = noOfUnreadMsgs;

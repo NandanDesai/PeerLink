@@ -59,7 +59,7 @@ public class ChatMessageRepository {
         }).start();
     }
 
-    public LiveData<List<ChatMessage>> getChatMessages(String chatId) {
+    public List<ChatMessage> getChatMessages(String chatId) {
         return chatMessageDao.getAllChatMessages(chatId);
     }
 
@@ -69,6 +69,10 @@ public class ChatMessageRepository {
 
     public LiveData<List<ChatMessage>> getAllUnsentMsgs() {
         return chatMessageDao.getAllUnsentMsgs();
+    }
+
+    public LiveData<ChatMessage> getRecentMsg(String chatId){
+        return chatMessageDao.getRecentMsg(chatId);
     }
 
     public void updateMessageStatusWithChatId(String chatId, String fromStatus, String toStatus) {
