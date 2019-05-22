@@ -39,6 +39,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatMessageAdapter chatMessageAdapter;
     private String chatId;
     private List<ChatMessage> chatMessages=new ArrayList<>();
+    private ChatMessageAdapter.EndlessRecyclerViewScrollListener scrollListener;
 
     private ImageView emojiButton;
     private EmojiEditText messageInput;
@@ -48,6 +49,8 @@ public class ChatActivity extends AppCompatActivity {
     private EmojiPopup emojiPopup;
 
     private boolean contactExists = true;
+    private int currentOffset=10;
+    private int limit=10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +71,33 @@ public class ChatActivity extends AppCompatActivity {
         chatMessagesRecyclerView.setAdapter(chatMessageAdapter);
         chatMessagesRecyclerView.setNestedScrollingEnabled(false);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         chatMessagesRecyclerView.setLayoutManager(linearLayoutManager);
+        scrollListener = new ChatMessageAdapter.EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                Log.d(TAG, "onLoadMore: Loading more items for recycler view");
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        chatMessageAdapter.addChatMessages(chatActivityViewModel.getChatMessages(chatId, limit, currentOffset));
+                        currentOffset=currentOffset+limit;
+                    }
+                }).start();
+
+                view.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        chatMessageAdapter.notifyItemRangeInserted(chatMessageAdapter.getItemCount(), chatMessages.size()-1);
+                    }
+                });
+            }
+        };
+        chatMessagesRecyclerView.addOnScrollListener(scrollListener);
 
         chatActivityViewModel = ViewModelProviders.of(this).get(ChatActivityViewModel.class);
 
@@ -262,6 +290,9 @@ public class ChatActivity extends AppCompatActivity {
         private List<ChatMessage> chatMessages;
         private String chatId;
 
+        private final int offset =0;
+        private final int limit=10;
+
         public SetupChatListViewTask(RecyclerView chatMessagesRecyclerView, ChatActivityViewModel chatActivityViewModel, ChatMessageAdapter chatMessageAdapter, String chatId) {
             this.chatMessagesRecyclerView = chatMessagesRecyclerView;
             this.chatActivityViewModel = chatActivityViewModel;
@@ -272,7 +303,7 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: fetching the list of chatMessages.");
-            chatMessages=chatActivityViewModel.getChatMessages(chatId);
+            chatMessages=chatActivityViewModel.getChatMessages(chatId, limit, offset);
             return null;
         }
 

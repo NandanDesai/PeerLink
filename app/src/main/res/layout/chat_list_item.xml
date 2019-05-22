@@ -39,7 +39,7 @@
                     android:textColor="#FFF"
                     android:textSize="14sp" />
             </RelativeLayout>
-            <TextView
+            <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/recentChatMsg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

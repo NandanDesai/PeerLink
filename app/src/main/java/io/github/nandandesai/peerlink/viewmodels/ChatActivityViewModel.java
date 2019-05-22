@@ -44,6 +44,10 @@ public class ChatActivityViewModel extends AndroidViewModel {
         return chatMessageRepository.getChatMessages(chatId);
     }
 
+    public List<ChatMessage> getChatMessages(String chatId, int limit, int offset) {
+        return chatMessageRepository.getChatMessages(chatId, limit, offset);
+    }
+
     public LiveData<ChatMessage> getRecentChatMessage(String chatId){
         return chatMessageRepository.getRecentMsg(chatId);
     }

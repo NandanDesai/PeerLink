@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +119,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         RelativeLayout chatListItemLayout;
         CircleImageView profilePicImageView;
         TextView chatTitleView;
-        TextView recentChatMsgView;
+        EmojiTextView recentChatMsgView;
         TextView unreadMsgCountView;
 
         ViewHolder(@NonNull View itemView) {

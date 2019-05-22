@@ -63,6 +63,10 @@ public class ChatMessageRepository {
         return chatMessageDao.getAllChatMessages(chatId);
     }
 
+    public List<ChatMessage> getChatMessages(String chatId, int limit, int offset) {
+        return chatMessageDao.getChatMessagesUsingOffset(chatId, limit, offset);
+    }
+
     public LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId) {
         return chatMessageDao.getAllUnreadMsgs(chatId);
     }

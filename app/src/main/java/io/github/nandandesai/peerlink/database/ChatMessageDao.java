@@ -18,6 +18,9 @@ public interface ChatMessageDao {
     @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId ORDER BY messageTime ASC")
     List<ChatMessage> getAllChatMessages(String chatId);
 
+    @Query("SELECT * FROM ChatMessage WHERE chatId=:chatId ORDER BY messageTime DESC LIMIT :limit OFFSET :offset")
+    List<ChatMessage> getChatMessagesUsingOffset(String chatId, int limit, int offset);
+
     @Query("SELECT * FROM ChatMessage WHERE messageStatus='"+ChatMessage.STATUS.USER_NOT_READ+"' AND chatId=:chatId")
     LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId);
 
