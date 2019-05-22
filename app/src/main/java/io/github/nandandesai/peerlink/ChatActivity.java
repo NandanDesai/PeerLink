@@ -6,28 +6,24 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.github.nandandesai.peerlink.adapters.ChatMessagesAdapter;
-import io.github.nandandesai.peerlink.core.PeerLinkSender;
+import io.github.nandandesai.peerlink.adapters.ChatMessageAdapter;
 import io.github.nandandesai.peerlink.models.ChatMessage;
 import io.github.nandandesai.peerlink.models.ChatSession;
 import io.github.nandandesai.peerlink.models.Contact;
@@ -40,13 +36,14 @@ public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
 
     private ChatActivityViewModel chatActivityViewModel;
-    private ChatMessagesAdapter chatMessagesAdapter;
+    private ChatMessageAdapter chatMessageAdapter;
     private String chatId;
+    private List<ChatMessage> chatMessages=new ArrayList<>();
 
     private ImageView emojiButton;
     private EmojiEditText messageInput;
     private ImageButton sendButton;
-    private ListView chatMessagesListView;
+    private RecyclerView chatMessagesRecyclerView;
     private PeerLinkPreferences preferences;
     private EmojiPopup emojiPopup;
 
@@ -60,19 +57,23 @@ public class ChatActivity extends AppCompatActivity {
         emojiButton = findViewById(R.id.emojiButton);
         messageInput = findViewById(R.id.msgInput);
         sendButton = findViewById(R.id.send);
-        chatMessagesListView = findViewById(R.id.chatMessageList);
+        chatMessagesRecyclerView = findViewById(R.id.chatMessageList);
 
         preferences = new PeerLinkPreferences(this);
 
         chatId = getIntent().getStringExtra("chatId");
         Log.d(TAG, "onCreate: Opened ChatActivity with chatId: " + chatId);
-        chatMessagesAdapter = new ChatMessagesAdapter(this);
-        chatMessagesListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        chatMessagesListView.setAdapter(chatMessagesAdapter);
+
+        chatMessageAdapter=new ChatMessageAdapter(this,  chatMessages);
+        chatMessagesRecyclerView.setAdapter(chatMessageAdapter);
+        chatMessagesRecyclerView.setNestedScrollingEnabled(false);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        chatMessagesRecyclerView.setLayoutManager(linearLayoutManager);
 
         chatActivityViewModel = ViewModelProviders.of(this).get(ChatActivityViewModel.class);
 
-        new SetupChatListViewTask(chatActivityViewModel, chatMessagesAdapter, chatId).execute();
+        new SetupChatListViewTask(chatMessagesRecyclerView, chatActivityViewModel, chatMessageAdapter, chatId).execute();
 
         //setup toolbar info
         Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
@@ -223,20 +224,31 @@ public class ChatActivity extends AppCompatActivity {
         * The below code adds the newly entered chatMessage to the list of chatmessages in adapter on by one as opposed
         * to replacing the entire list of messages as done in the above commented code.
         * */
+
+        /*here, I was facing a problem of where, when I open this activity, the last element of the ChatMessages array was getting
+        * added twice. That was because, after I first set the ChatMessage array in the Adapter, the below code would also trigger
+        * which then would add the last element separately again. Hence, the last element was getting repeated when I first open the Activity.
+        * To avoid that, here I added firstTime variable to check if the activity is being opened for the first time or is it already open and running.
+        * If it's the firstTime, then don't add the last ("recent") ChatMessage in the Adapter. Otherwise, add it. That's the logic behind this.
+        * It's not too good of an approach but it works.*/
+        final boolean[] firstTime = {true};
         chatActivityViewModel.getRecentChatMessage(chatId).observe(this, new Observer<ChatMessage>() {
             @Override
             public void onChanged(@Nullable ChatMessage chatMessage) {
-                chatMessagesAdapter.getChatMessages().add(chatMessage);
-                chatMessagesAdapter.notifyDataSetChanged();
+
                 ///////the below code is temporary.
                 /////////////////////////////////
                 ///////////////////////////////////
-                if (chatMessage != null) {
+                if (chatMessage != null && !firstTime[0]) {
                     //here, I'm updating all the not_read messages to read. But, in actual case
                     //I need to send a response to the sender that I have read the message.
                     //figure out what you need to do in such case later.
                     chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
+
+                    chatMessageAdapter.addChatMessage(chatMessage);
+                    chatMessagesRecyclerView.scrollToPosition(chatMessagesRecyclerView.getAdapter().getItemCount()-1);
                 }
+                firstTime[0] =false;
             }
         });
 
@@ -244,14 +256,16 @@ public class ChatActivity extends AppCompatActivity {
 
     private static class SetupChatListViewTask extends AsyncTask<Void, Void, Void>{
 
+        private RecyclerView chatMessagesRecyclerView;
         private ChatActivityViewModel chatActivityViewModel;
-        private ChatMessagesAdapter chatMessagesAdapter;
+        private ChatMessageAdapter chatMessageAdapter;
         private List<ChatMessage> chatMessages;
         private String chatId;
 
-        public SetupChatListViewTask(ChatActivityViewModel chatActivityViewModel, ChatMessagesAdapter chatMessagesAdapter, String chatId) {
+        public SetupChatListViewTask(RecyclerView chatMessagesRecyclerView, ChatActivityViewModel chatActivityViewModel, ChatMessageAdapter chatMessageAdapter, String chatId) {
+            this.chatMessagesRecyclerView = chatMessagesRecyclerView;
             this.chatActivityViewModel = chatActivityViewModel;
-            this.chatMessagesAdapter = chatMessagesAdapter;
+            this.chatMessageAdapter = chatMessageAdapter;
             this.chatId = chatId;
         }
 
@@ -265,28 +279,9 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             Log.d(TAG, "onPostExecute: setting the chatMessagesAdapter with the fetched list of chatMessages");
-            chatMessagesAdapter.setChatMessages(chatMessages);
+            //chatMessages.remove(chatMessages.size()-1); //remove the last element because that will be added separately later using LiveData observer.
+            chatMessageAdapter.setChatMessages(chatMessages);
+            chatMessagesRecyclerView.scrollToPosition(chatMessagesRecyclerView.getAdapter().getItemCount()-1);
         }
     }
-
-    private void enqueueMessageToSend(ChatMessage chatMessage) {
-
-        PeerLinkPreferences preferences = new PeerLinkPreferences(this);
-
-        Data data = new Data.Builder()
-                //.putString(PeerLinkSender.SENDER_ADDR, chatId) //replace the below line with this one
-                .putString(PeerLinkSender.SENDER_ADDR, preferences.getMyOnionAddress()) //this is temporary.
-                .putString(PeerLinkSender.MSG_TO_SEND, new Gson().toJson(chatMessage))
-                .build();
-
-        final OneTimeWorkRequest workRequest =
-                new OneTimeWorkRequest.Builder(PeerLinkSender.class)
-                        .setInputData(data)
-                        .build();
-
-        WorkManager.getInstance().enqueue(workRequest);
-        Log.d(TAG, "enqueueMessageToSend: Message queued");
-    }
-
-
 }

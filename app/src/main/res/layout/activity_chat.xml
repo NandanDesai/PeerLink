@@ -60,7 +60,7 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/chatMessageList"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
@@ -70,7 +70,7 @@
         android:scrollbarStyle="outsideOverlay"
         android:divider="@null">
 
-    </ListView>
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:id="@+id/bottomlayout"

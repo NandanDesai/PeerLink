@@ -31,10 +31,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     private static final String TAG = "ChatListAdapter";
 
     private Context context;
-
     private List<DataHolder> dataHolders=new ArrayList<>();
-
     private LifecycleOwner lifecycleOwner;
+
     public ChatListAdapter(Context context, LifecycleOwner lifecycleOwner, List<DataHolder> dataHolders) {
         this.context = context;
         this.lifecycleOwner=lifecycleOwner;
@@ -122,7 +121,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         TextView recentChatMsgView;
         TextView unreadMsgCountView;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             chatListItemLayout=itemView.findViewById(R.id.chatListItemLayout);
             profilePicImageView=itemView.findViewById(R.id.profileImage);
