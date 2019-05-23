@@ -9,6 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 
 import io.github.nandandesai.peerlink.adapters.TabLayoutPagerAdapter;
@@ -59,6 +62,22 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_activity_options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.settings_menu){
+            Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+        }else if(id == R.id.about_menu){
+            Toast.makeText(this, "About", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     //this method needs code to detect that the ActivityResult is coming from Orbot.
 

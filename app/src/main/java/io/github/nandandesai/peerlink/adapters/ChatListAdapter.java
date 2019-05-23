@@ -1,5 +1,6 @@
 package io.github.nandandesai.peerlink.adapters;
 
+import android.app.Activity;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -7,13 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -33,11 +39,17 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     private Context context;
     private List<DataHolder> dataHolders=new ArrayList<>();
     private LifecycleOwner lifecycleOwner;
+    private ActionMode actionMode;
+    private AppCompatActivity activity;
 
-    public ChatListAdapter(Context context, LifecycleOwner lifecycleOwner, List<DataHolder> dataHolders) {
+    //testing this variable for mulitple select and delete in ActionMode contextual menu. It's not completely implemented yet.
+    private ArrayList<String> chatIdsSelectedInActionMode=new ArrayList<>();
+
+    public ChatListAdapter(Context context, LifecycleOwner lifecycleOwner, List<DataHolder> dataHolders, AppCompatActivity activity) {
         this.context = context;
         this.lifecycleOwner=lifecycleOwner;
         this.dataHolders=dataHolders;
+        this.activity=activity;
     }
 
     @NonNull
@@ -73,6 +85,18 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                             Intent intent=new Intent(context, ChatActivity.class);
                             intent.putExtra("chatId", chatSession.getChatId());
                             context.startActivity(intent);
+                        }
+                    });
+
+                    viewHolder.chatListItemLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if(actionMode!=null){
+                                return false;
+                            }
+                            chatIdsSelectedInActionMode.add(chatSession.getChatId());
+                            actionMode=activity.startSupportActionMode(actionModeCallback);
+                            return true;
                         }
                     });
 
@@ -143,5 +167,37 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         }
 
     }
+
+    private ActionMode.Callback actionModeCallback=new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.main_activity_contextual_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
+            switch (menuItem.getItemId()){
+                case R.id.main_contextual_delete_menu:{
+                    Toast.makeText(context, "Delete clicked on: "+chatIdsSelectedInActionMode.get(0), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onActionItemClicked: Size of chatIdsSelectedInActionMode array:"+chatIdsSelectedInActionMode.size());
+                    mode.finish();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            actionMode=null;
+            chatIdsSelectedInActionMode.clear();
+        }
+    };
 
 }

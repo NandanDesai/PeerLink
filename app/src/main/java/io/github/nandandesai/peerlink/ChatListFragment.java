@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -111,7 +112,7 @@ public class ChatListFragment extends Fragment {
     private void initRecyclerView(View view){
         Context context=getContext();
         recyclerView=view.findViewById(R.id.chatList);
-        chatListAdapter=new ChatListAdapter(context,this, chatDataHolders);
+        chatListAdapter=new ChatListAdapter(context,this, chatDataHolders, (AppCompatActivity)getActivity());
         recyclerView.setAdapter(chatListAdapter);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
