@@ -24,6 +24,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -43,7 +45,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     private AppCompatActivity activity;
 
     //testing this variable for mulitple select and delete in ActionMode contextual menu. It's not completely implemented yet.
-    private ArrayList<String> chatIdsSelectedInActionMode=new ArrayList<>();
+    private HashMap<String, RelativeLayout> chatIdsSelectedInActionMode=new HashMap<>();
 
     public ChatListAdapter(Context context, LifecycleOwner lifecycleOwner, List<DataHolder> dataHolders, AppCompatActivity activity) {
         this.context = context;
@@ -94,8 +96,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                             if(actionMode!=null){
                                 return false;
                             }
-                            chatIdsSelectedInActionMode.add(chatSession.getChatId());
+                            chatIdsSelectedInActionMode.put(chatSession.getChatId(), viewHolder.chatListItemLayout);
                             actionMode=activity.startSupportActionMode(actionModeCallback);
+                            viewHolder.chatListItemLayout.setBackgroundColor(context.getResources().getColor(R.color.lightBlue));
                             return true;
                         }
                     });
@@ -184,7 +187,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
             switch (menuItem.getItemId()){
                 case R.id.main_contextual_delete_menu:{
-                    Toast.makeText(context, "Delete clicked on: "+chatIdsSelectedInActionMode.get(0), Toast.LENGTH_SHORT).show();
+                    //get a set of selected keys.
+                    Iterator iterator=chatIdsSelectedInActionMode.keySet().iterator();
+                    while(iterator.hasNext()){
+                        //iterate through each of the keys and do the job that is intended.
+                        //for testing, I'm just displaying a toast
+                        Toast.makeText(context, "Delete clicked on: "+iterator.next(), Toast.LENGTH_SHORT).show();
+                    }
                     Log.d(TAG, "onActionItemClicked: Size of chatIdsSelectedInActionMode array:"+chatIdsSelectedInActionMode.size());
                     mode.finish();
                     return true;
@@ -196,8 +205,19 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             actionMode=null;
-            chatIdsSelectedInActionMode.clear();
+            cleanUpSelectedItems();
         }
     };
 
+    private void cleanUpSelectedItems(){
+        //the below code is to clear off the color set on selected layout items.
+        Iterator iterator=chatIdsSelectedInActionMode.keySet().iterator();
+        while(iterator.hasNext()){
+            RelativeLayout selectedLayout = (RelativeLayout)chatIdsSelectedInActionMode.get(iterator.next());
+            selectedLayout.setBackgroundColor(0);
+        }
+
+        //finally, clear off the HashMap.
+        chatIdsSelectedInActionMode.clear();
+    }
 }
