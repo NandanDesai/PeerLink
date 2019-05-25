@@ -63,6 +63,10 @@ public class ChatMessageRepository {
         return chatMessageDao.getAllChatMessages(chatId);
     }
 
+    public LiveData<List<ChatMessage>> getChatMessagesLiveData(String chatId){
+        return chatMessageDao.getAllChatMessagesLiveData(chatId);
+    }
+
     public LiveData<List<ChatMessage>> getAllUnreadMsgs(String chatId) {
         return chatMessageDao.getAllUnreadMsgs(chatId);
     }

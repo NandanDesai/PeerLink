@@ -94,7 +94,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public void setChatMessages(List<ChatMessage> chatMessages){
         this.chatMessages=chatMessages;
-        notifyDataSetChanged();
+        notifyItemInserted(chatMessages.size());
     }
 
     public void addChatMessage(ChatMessage chatMessage){

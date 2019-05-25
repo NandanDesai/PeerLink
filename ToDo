@@ -1,3 +1,5 @@
-Clean up ChatActivity. Look for the TODO comment in that file.
+Revaluation of entire project is necessary. The code is looking a bit "unprofessional".
+
+Setting the toolbar info in ChatActivity needs to be done correctly. I guess using Asyc Task instead of LiveData would be better in that case. Also I need to think of using pagination instead of loading all the entries in ChatMessage table. Because, ChatActivity becomes extremely slow when the number of messages are around 50.
 
 Also, think of using WebSockets. Maybe it may help in speeding up the message sending process.

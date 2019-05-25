@@ -78,7 +78,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-        new SetupChatListViewTask(chatMessagesRecyclerView, chatActivityViewModel, chatMessageAdapter, chatId).execute();
+        //new SetupChatListViewTask(chatMessagesRecyclerView, chatActivityViewModel, chatMessageAdapter, chatId).execute();
 
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
@@ -206,12 +206,11 @@ public class ChatActivity extends AppCompatActivity {
 
         });
 
-        /*
 
-        chatActivityViewModel.getChatMessages(chatId).observe(this, new Observer<List<ChatMessage>>() {
+
+        chatActivityViewModel.getChatMessagesLiveData(chatId).observe(this, new Observer<List<ChatMessage>>() {
             @Override
             public void onChanged(@Nullable List<ChatMessage> chatMessages) {
-                chatMessagesAdapter.setChatMessages(chatMessages);
 
                 ///////the below code is temporary.
                 /////////////////////////////////
@@ -221,10 +220,12 @@ public class ChatActivity extends AppCompatActivity {
                     //I need to send a response to the sender that I have read the message.
                     //figure out what you need to do in such case later.
                     chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
+                    chatMessageAdapter.setChatMessages(chatMessages);
+                    chatMessagesRecyclerView.scrollToPosition(chatMessagesRecyclerView.getAdapter().getItemCount()-1);
                 }
             }
         });
-        */
+
 
         /*
         * The below code adds the newly entered chatMessage to the list of chatmessages in adapter on by one as opposed
@@ -237,6 +238,10 @@ public class ChatActivity extends AppCompatActivity {
         * To avoid that, here I added firstTime variable to check if the activity is being opened for the first time or is it already open and running.
         * If it's the firstTime, then don't add the last ("recent") ChatMessage in the Adapter. Otherwise, add it. That's the logic behind this.
         * It's not too good of an approach but it works.*/
+
+        /*
+        //UPDATE: Duplicate entries are being added to Recycler view because of the below code.
+
         final boolean[] firstTime = {true};
         chatActivityViewModel.getRecentChatMessage(chatId).observe(this, new Observer<ChatMessage>() {
             @Override
@@ -250,13 +255,14 @@ public class ChatActivity extends AppCompatActivity {
                     //I need to send a response to the sender that I have read the message.
                     //figure out what you need to do in such case later.
                     chatActivityViewModel.updateMessageStatusWithChatId(chatId, ChatMessage.STATUS.USER_NOT_READ, ChatMessage.STATUS.USER_READ);
-
+                    Log.d(TAG, "onChanged: adding the message \""+chatMessage.getMessageContent()+"\" to the Recycler view");
                     chatMessageAdapter.addChatMessage(chatMessage);
                     chatMessagesRecyclerView.scrollToPosition(chatMessagesRecyclerView.getAdapter().getItemCount()-1);
                 }
                 firstTime[0] =false;
             }
         });
+        */
 
     }
 
