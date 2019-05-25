@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
-        android:theme="@style/AppTheme.AppBarOverlay"
+        android:theme="@style/CustomToolbarStyle"
         app:popupTheme="@style/AppTheme.PopupOverlay"
         android:elevation="4dp">
 
@@ -42,8 +42,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
                     android:clickable="true"
-                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title" />
+                     />
 
                 <TextView
                     android:id="@+id/userStatusInChat"

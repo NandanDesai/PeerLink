@@ -8,6 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:textViewStyle">@style/CustomTextViewStyle</item>
+        <item name="android:buttonStyle">@style/CustomButtonStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -39,6 +41,28 @@
 
     <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="CustomToolbarStyle">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="android:background">?colorPrimary</item>
+        <item name="android:theme">@style/CustomToolbarTheme</item>
+        <item name="android:fontFamily">@font/hind_light</item>
+    </style>
+
+    <style name="CustomToolbarTheme">
+        <!-- Color used for the title of the Toolbar - as long as not overridden -->
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+        <!-- Used to color back button and three dots -->
+        <item name="android:textColorSecondary">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="CustomTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/hind_light</item>
+    </style>
+
+    <style name="CustomButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/hind_light</item>
     </style>
 
 </resources>
