@@ -52,6 +52,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
+                    android:singleLine="true"
                     android:hint="Name"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -73,6 +74,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
+                    android:singleLine="true"
                     android:hint="ID"
                     android:textSize="14sp" />
             </LinearLayout>

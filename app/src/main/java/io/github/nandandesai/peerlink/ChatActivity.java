@@ -64,6 +64,11 @@ public class ChatActivity extends AppCompatActivity {
         chatId = getIntent().getStringExtra("chatId");
         Log.d(TAG, "onCreate: Opened ChatActivity with chatId: " + chatId);
 
+        chatActivityViewModel = ViewModelProviders.of(this).get(ChatActivityViewModel.class);
+
+        //setup Toolbar info
+        setupToolbar();
+
         chatMessageAdapter=new ChatMessageAdapter(this,  chatMessages);
         chatMessagesRecyclerView.setAdapter(chatMessageAdapter);
         chatMessagesRecyclerView.setNestedScrollingEnabled(false);
@@ -71,20 +76,9 @@ public class ChatActivity extends AppCompatActivity {
         linearLayoutManager.setStackFromEnd(true);
         chatMessagesRecyclerView.setLayoutManager(linearLayoutManager);
 
-        chatActivityViewModel = ViewModelProviders.of(this).get(ChatActivityViewModel.class);
+
 
         new SetupChatListViewTask(chatMessagesRecyclerView, chatActivityViewModel, chatMessageAdapter, chatId).execute();
-
-        //setup toolbar info
-        Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        TextView chatNameView = toolbar.findViewById(R.id.chatToolbarTitle);
-        CircleImageView toolbarProfileImageView = findViewById(R.id.chatToolbarIcon);
-
-
-
-        setupLiveDataObservers(chatNameView, toolbarProfileImageView);
 
 
         emojiButton.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +138,17 @@ public class ChatActivity extends AppCompatActivity {
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chatLayout)).build(messageInput);
     }
 
+    private void setupToolbar(){
+        //setup toolbar info
+        Toolbar toolbar = (Toolbar) findViewById(R.id.chatActivityToolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        TextView chatNameView = toolbar.findViewById(R.id.chatToolbarTitle);
+        CircleImageView toolbarProfileImageView = findViewById(R.id.chatToolbarIcon);
+
+        setupLiveDataObservers(chatNameView, toolbarProfileImageView);
+    }
+
     private void setupLiveDataObservers(TextView chatNameView, CircleImageView toolbarProfileImageView) {
 
 
@@ -152,6 +157,7 @@ public class ChatActivity extends AppCompatActivity {
                 So, I should just use whatever name is present in ChatSession table right? Whats the use of the below getContact observer code?
                 I can simplify this.
         */
+        /*
         chatActivityViewModel.getContact(chatId).observe(this, new Observer<Contact>() {
             @Override
             public void onChanged(@Nullable Contact contact) {
@@ -169,6 +175,7 @@ public class ChatActivity extends AppCompatActivity {
                         .into(toolbarProfileImageView);
             }
         });
+        */
 
         //the below code is temporary to some extent.
         //if the contact doesn't exists, then it is probably a group chat or it is a chat with an unsaved contact.
@@ -178,7 +185,6 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable ChatSession chatSession) {
 
-                if (!contactExists) {
                     if (chatSession == null) {
                         //if contact doesn't exists and chatSession is null
                         //I think this case won't happen.
@@ -197,7 +203,7 @@ public class ChatActivity extends AppCompatActivity {
                     //dynamically update
 
                 }
-            }
+
         });
 
         /*

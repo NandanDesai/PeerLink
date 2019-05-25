@@ -12,7 +12,7 @@
         android:id="@+id/profileImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_person" />
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,14 +40,16 @@
                     android:background="@drawable/badge"
                     android:text="0"
                     android:textColor="#FFF"
+                    android:singleLine="true"
                     android:textSize="14sp" />
             </RelativeLayout>
-            <TextView
+            <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/recentChatMsg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/chatTitle"
                 android:layout_marginTop="5dp"
+                android:singleLine="true"
                 android:textSize="14sp" />
         </RelativeLayout>
 </RelativeLayout>

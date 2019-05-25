@@ -48,10 +48,20 @@ public class PeerLinkReceiver extends NanoHTTPD {
             session.parseBody(map);
             Log.d(TAG, "serve: content received: "+map.toString());
             ChatMessage chatMessage=new Gson().fromJson(map.get("postData"),ChatMessage.class);
-            PeerLinkPreferences preferences=new PeerLinkPreferences(context);
-            if(!chatMessage.getMessageFrom().equalsIgnoreCase(preferences.getMyOnionAddress())) {
-                chatMessage.setChatId(chatMessage.getMessageFrom());
-            }
+
+            /*
+                 ChatId currently is the address of the person I'm (the "user") messaging to.
+                 The first time I'm sending someone a message or receiving a message from someone (message is received from this Method),
+                 I'm creating dummy rows in ChatSession and PeerLinkSession in ChatMessageRepository.
+                 So, the message I send from ChatActivity or the message I receive from here, both will be sent to ChatMessageRepository.
+                 There, if I'm receiving the message from a new person, then his address will be stored as ChatId.
+                 If I'm sending the message to someone, then his/her address will be store as ChatId.
+
+                 Now, as in this method I'm receiving a message from someone else, the ChatId that will be stored in chatMessage object
+                 will be my own address. So, I will have to rewrite it with his address and then store it in my database.
+            */
+            chatMessage.setChatId(chatMessage.getMessageFrom());
+
 
             PeerLinkDatabase peerLinkDatabase=PeerLinkDatabase.getInstance(context);
             String contactName = peerLinkDatabase.contactDao().getContactName(chatMessage.getChatId());
